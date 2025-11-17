@@ -14,13 +14,9 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
     {
         private readonly IGeminiService? _geminiService;
         private readonly IAudioService _audioService;
-        private readonly IGoogleAuthService? _authService;
 
         [ObservableProperty]
         private GameState _currentState = GameState.Start;
-
-        [ObservableProperty]
-        private bool _showLogin = false;
 
         [ObservableProperty]
         private bool _showStartView = false;
@@ -46,45 +42,32 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
         [ObservableProperty]
         private float _volume = 0.3f;
 
-        public MainViewModel(IAudioService audioService, IGeminiService? geminiService = null, IGoogleAuthService? authService = null)
+        public MainViewModel(IAudioService audioService, IGeminiService? geminiService = null)
         {
             _audioService = audioService ?? throw new ArgumentNullException(nameof(audioService));
             _geminiService = geminiService;
-            _authService = authService;
 
             // DEBUG: Log startup state
             System.Diagnostics.Debug.WriteLine($"=== MainViewModel Constructor ===");
-            System.Diagnostics.Debug.WriteLine($"AuthService is null: {_authService == null}");
-            System.Diagnostics.Debug.WriteLine($"AuthService is authenticated: {_authService?.IsAuthenticated ?? false}");
+            System.Diagnostics.Debug.WriteLine($"GeminiService is null: {_geminiService == null}");
 
             // Determine which screen to show
-            if (_authService == null)
+            if (_geminiService == null)
             {
-                // No OAuth configured - show setup instructions
-                System.Diagnostics.Debug.WriteLine("Showing Setup Instructions (OAuth not configured)");
+                // No API Key configured - show setup instructions
+                System.Diagnostics.Debug.WriteLine("Showing Setup Instructions (API Key not configured)");
                 ShowSetupInstructions = true;
-                ShowLogin = false;
                 ShowStartView = false;
-            }
-            else if (!_authService.IsAuthenticated)
-            {
-                // OAuth configured but not authenticated - show login
-                System.Diagnostics.Debug.WriteLine("Showing Login (OAuth configured, not authenticated)");
-                ShowLogin = true;
-                ShowStartView = false;
-                ShowSetupInstructions = false;
             }
             else
             {
-                // Authenticated - show start view
-                System.Diagnostics.Debug.WriteLine("Showing StartView (authenticated)");
-                ShowLogin = false;
-                ShowStartView = CurrentState == GameState.Start;
+                // API Key configured - show start view
+                System.Diagnostics.Debug.WriteLine("Showing StartView (API Key configured)");
                 ShowSetupInstructions = false;
+                ShowStartView = CurrentState == GameState.Start;
             }
 
             System.Diagnostics.Debug.WriteLine($"ShowSetupInstructions: {ShowSetupInstructions}");
-            System.Diagnostics.Debug.WriteLine($"ShowLogin: {ShowLogin}");
             System.Diagnostics.Debug.WriteLine($"ShowStartView: {ShowStartView}");
             System.Diagnostics.Debug.WriteLine("=================================");
         }
@@ -99,7 +82,7 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
             {
                 if (_geminiService == null)
                 {
-                    ErrorMessage = "Gemini service is not configured. Please check your API key or OAuth credentials.";
+                    ErrorMessage = "Gemini service is not configured. Please add your GEMINI_API_KEY to App.config";
                     return;
                 }
 
@@ -155,19 +138,11 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
         }
 
         /// <summary>
-        /// Updates ShowStartView when ShowLogin changes
-        /// </summary>
-        partial void OnShowLoginChanged(bool value)
-        {
-            ShowStartView = !value && CurrentState == GameState.Start;
-        }
-
-        /// <summary>
         /// Updates ShowStartView when CurrentState changes
         /// </summary>
         partial void OnCurrentStateChanged(GameState value)
         {
-            ShowStartView = !ShowLogin && value == GameState.Start;
+            ShowStartView = value == GameState.Start;
         }
     }
 }

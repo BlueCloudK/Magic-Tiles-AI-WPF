@@ -11,7 +11,7 @@
         WindowStartupLocation="CenterScreen"
         Background="#0f0f23">
     <Grid>
-        <!-- Setup Instructions Screen (shows if OAuth is not configured) -->
+        <!-- Setup Instructions Screen (shows if API Key is not configured) -->
         <Grid x:Name="SetupInstructionsScreen"
               Visibility="{Binding ShowSetupInstructions, Converter={StaticResource BoolToVisibilityConverter}}">
             <Grid.Background>
@@ -21,7 +21,7 @@
                 </LinearGradientBrush>
             </Grid.Background>
             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="600">
-                <TextBlock Text="⚙️ Setup Required"
+                <TextBlock Text="🔑 API Key Required"
                           FontSize="32"
                           FontWeight="Bold"
                           Foreground="White"
@@ -32,38 +32,45 @@
                           FontSize="16"
                           Foreground="#94a3b8"
                           HorizontalAlignment="Center"
-                          Margin="0,0,0,30">
-                    <Run Text="To use Magic Tiles AI, you need to configure Google OAuth 2.0 credentials."/>
+                          Margin="0,0,0,30"
+                          TextAlignment="Center">
+                    <Run Text="To use Magic Tiles AI, you need a FREE Gemini API key."/>
                     <LineBreak/><LineBreak/>
-                    <Run Text="Please follow these steps:" FontWeight="Bold"/>
+                    <Run Text="Follow these simple steps:" FontWeight="Bold"/>
                 </TextBlock>
 
                 <StackPanel Margin="20,0,20,0">
-                    <TextBlock TextWrapping="Wrap" FontSize="14" Foreground="#cbd5e1" Margin="0,0,0,10">
-                        <Run Text="1. Go to " />
-                        <Hyperlink NavigateUri="https://console.cloud.google.com/apis/credentials"
+                    <TextBlock TextWrapping="Wrap" FontSize="14" Foreground="#cbd5e1" Margin="0,0,0,15">
+                        <Run Text="1. Visit " />
+                        <Hyperlink NavigateUri="https://aistudio.google.com/app/apikey"
                                   RequestNavigate="Hyperlink_RequestNavigate"
                                   Foreground="#60a5fa">
-                            <Run Text="Google Cloud Console"/>
+                            <Run Text="Google AI Studio"/>
                         </Hyperlink>
                     </TextBlock>
 
-                    <TextBlock Text="2. Create a new OAuth 2.0 Client ID (Desktop app)"
+                    <TextBlock Text="2. Sign in with your Google account"
                               TextWrapping="Wrap"
                               FontSize="14"
                               Foreground="#cbd5e1"
-                              Margin="0,0,0,10"/>
+                              Margin="0,0,0,15"/>
 
-                    <TextBlock Text="3. Copy your Client ID and Client Secret"
+                    <TextBlock Text="3. Click 'Create API key' button"
                               TextWrapping="Wrap"
                               FontSize="14"
                               Foreground="#cbd5e1"
-                              Margin="0,0,0,10"/>
+                              Margin="0,0,0,15"/>
+
+                    <TextBlock Text="4. Copy the generated API key"
+                              TextWrapping="Wrap"
+                              FontSize="14"
+                              Foreground="#cbd5e1"
+                              Margin="0,0,0,15"/>
 
                     <TextBlock TextWrapping="Wrap" FontSize="14" Foreground="#cbd5e1" Margin="0,0,0,10">
-                        <Run Text="4. Add them to "/>
+                        <Run Text="5. Add it to your "/>
                         <Run Text="App.config" FontFamily="Consolas" Foreground="#f59e0b"/>
-                        <Run Text=" file"/>
+                        <Run Text=" file:"/>
                     </TextBlock>
 
                     <Border Background="#1e293b"
@@ -76,34 +83,32 @@
                                   FontSize="12"
                                   Foreground="#e2e8f0"
                                   TextWrapping="Wrap">
-                            <Run Text="&lt;add key=&quot;GOOGLE_CLIENT_ID&quot;"/>
+                            <Run Text="&lt;add key=&quot;GEMINI_API_KEY&quot;"/>
                             <LineBreak/>
-                            <Run Text="     value=&quot;YOUR_CLIENT_ID.apps.googleusercontent.com&quot;/&gt;"/>
-                            <LineBreak/>
-                            <Run Text="&lt;add key=&quot;GOOGLE_CLIENT_SECRET&quot;"/>
-                            <LineBreak/>
-                            <Run Text="     value=&quot;YOUR_CLIENT_SECRET&quot;/&gt;"/>
+                            <Run Text="     value=&quot;YOUR_API_KEY_HERE&quot;/&gt;"/>
                         </TextBlock>
                     </Border>
 
-                    <TextBlock Text="5. Restart the application"
+                    <TextBlock Text="6. Restart the application"
                               TextWrapping="Wrap"
                               FontSize="14"
-                              Foreground="#cbd5e1"/>
+                              Foreground="#cbd5e1"
+                              FontWeight="SemiBold"/>
                 </StackPanel>
 
-                <TextBlock Text="For detailed instructions, check the README.md file"
+                <TextBlock TextWrapping="Wrap"
                           FontSize="12"
                           Foreground="#64748b"
                           HorizontalAlignment="Center"
+                          TextAlignment="Center"
                           Margin="0,30,0,0"
-                          FontStyle="Italic"/>
+                          FontStyle="Italic">
+                    <Run Text="The API key is FREE and you get your own quota."/>
+                    <LineBreak/>
+                    <Run Text="Each user should use their own API key."/>
+                </TextBlock>
             </StackPanel>
         </Grid>
-
-        <!-- Login Screen (shows first if OAuth is configured and not authenticated) -->
-        <views:LoginView x:Name="LoginView"
-                        Visibility="{Binding DataContext.ShowLogin, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
         <!-- Start Screen (only shows when not showing login AND in Start state) -->
         <views:StartView x:Name="StartView"

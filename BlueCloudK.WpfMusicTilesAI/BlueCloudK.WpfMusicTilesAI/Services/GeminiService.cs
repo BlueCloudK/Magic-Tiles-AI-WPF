@@ -8,17 +8,20 @@ using System.Threading.Tasks;
 namespace BlueCloudK.WpfMusicTilesAI.Services
 {
     /// <summary>
-    /// Service to generate beat maps using Google Gemini AI with OAuth authentication
+    /// Service to generate beat maps using Google Gemini AI with API Key authentication
     /// </summary>
     public class GeminiService : IGeminiService
     {
-        private readonly IGoogleAuthService _authService;
+        private readonly string _apiKey;
         private readonly HttpClient _httpClient;
         private const string BaseUrl = "https://generativelanguage.googleapis.com/v1beta";
 
-        public GeminiService(IGoogleAuthService authService)
+        public GeminiService(string apiKey)
         {
-            _authService = authService ?? throw new ArgumentNullException(nameof(authService));
+            if (string.IsNullOrWhiteSpace(apiKey))
+                throw new ArgumentException("API Key cannot be null or empty", nameof(apiKey));
+
+            _apiKey = apiKey;
             _httpClient = new HttpClient();
         }
 
@@ -26,12 +29,6 @@ namespace BlueCloudK.WpfMusicTilesAI.Services
         {
             if (string.IsNullOrWhiteSpace(description))
                 throw new ArgumentException("Description cannot be null or empty", nameof(description));
-
-            // Ensure user is authenticated
-            if (!_authService.IsAuthenticated)
-            {
-                throw new InvalidOperationException("User must be authenticated to use Gemini API");
-            }
 
             var systemInstruction = @"You are a rhythm game AI composer. Your task is to create a playable beat map based on a user's song title or description.
     The beat map must be in JSON format and conform to the provided schema.
@@ -70,10 +67,6 @@ namespace BlueCloudK.WpfMusicTilesAI.Services
 
             try
             {
-                // Get access token
-                var credential = await _authService.GetCredentialAsync();
-                var token = await credential.GetAccessTokenForRequestAsync();
-
                 // Build request to Gemini API
                 var fullPrompt = $"{systemInstruction}\n\n{prompt}";
 
@@ -99,12 +92,12 @@ namespace BlueCloudK.WpfMusicTilesAI.Services
                 var requestJson = JsonConvert.SerializeObject(requestBody);
                 var content = new StringContent(requestJson, System.Text.Encoding.UTF8, "application/json");
 
-                // Set authorization header
-                var request = new HttpRequestMessage(HttpMethod.Post, $"{BaseUrl}/models/gemini-2.0-flash-exp:generateContent")
+                // Use API key in query string
+                var url = $"{BaseUrl}/models/gemini-2.0-flash-exp:generateContent?key={_apiKey}";
+                var request = new HttpRequestMessage(HttpMethod.Post, url)
                 {
                     Content = content
                 };
-                request.Headers.Add("Authorization", $"Bearer {token}");
 
                 // Send request
                 var response = await _httpClient.SendAsync(request);

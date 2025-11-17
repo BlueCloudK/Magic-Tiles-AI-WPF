@@ -33,47 +33,31 @@ namespace BlueCloudK.WpfMusicTilesAI
 
         private void ConfigureServices(IServiceCollection services)
         {
-            // Get OAuth credentials from configuration
-            var clientId = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID")
-                          ?? ConfigurationManager.AppSettings["GOOGLE_CLIENT_ID"];
+            // Get Gemini API Key from configuration
+            var apiKey = Environment.GetEnvironmentVariable("GEMINI_API_KEY")
+                        ?? ConfigurationManager.AppSettings["GEMINI_API_KEY"];
 
-            var clientSecret = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_SECRET")
-                              ?? ConfigurationManager.AppSettings["GOOGLE_CLIENT_SECRET"];
-
-            // DEBUG: Log OAuth configuration
+            // DEBUG: Log API Key configuration
             System.Diagnostics.Debug.WriteLine($"=== App ConfigureServices ===");
-            System.Diagnostics.Debug.WriteLine($"Client ID from config: '{clientId ?? "NULL"}'");
-            System.Diagnostics.Debug.WriteLine($"Client Secret from config: '{(string.IsNullOrEmpty(clientSecret) ? "NULL/EMPTY" : "***SET***")}'");
+            System.Diagnostics.Debug.WriteLine($"API Key from config: '{(string.IsNullOrEmpty(apiKey) ? "NULL/EMPTY" : "***SET***")}'");
 
             // Register services
-            // OAuth is now required for Gemini API
-            // Check if credentials are configured (not placeholders)
-            bool hasValidOAuthCredentials = !string.IsNullOrEmpty(clientId)
-                && !string.IsNullOrEmpty(clientSecret)
-                && !clientId.Contains("YOUR_")
-                && !clientSecret.Contains("YOUR_");
+            // Check if API key is configured (not placeholders)
+            bool hasValidApiKey = !string.IsNullOrEmpty(apiKey)
+                && !apiKey.Contains("YOUR_")
+                && !apiKey.Contains("API_KEY_HERE");
 
-            System.Diagnostics.Debug.WriteLine($"Has valid OAuth credentials: {hasValidOAuthCredentials}");
+            System.Diagnostics.Debug.WriteLine($"Has valid API Key: {hasValidApiKey}");
 
-            if (hasValidOAuthCredentials)
+            if (hasValidApiKey)
             {
-                System.Diagnostics.Debug.WriteLine("Registering GoogleAuthService and GeminiService");
-                // For desktop apps, GoogleAuthService will automatically use localhost redirect
-                services.AddSingleton<IGoogleAuthService>(sp => new GoogleAuthService(clientId!, clientSecret!));
-
-                // Register Gemini service using OAuth authentication
-                services.AddSingleton<IGeminiService>(sp =>
-                {
-                    var authService = sp.GetRequiredService<IGoogleAuthService>();
-                    return new GeminiService(authService);
-                });
-
-                // Register LoginViewModel only when OAuth is configured
-                services.AddTransient<LoginViewModel>();
+                System.Diagnostics.Debug.WriteLine("Registering GeminiService with API Key");
+                // Register Gemini service with API Key
+                services.AddSingleton<IGeminiService>(sp => new GeminiService(apiKey!));
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("OAuth not configured - services not registered");
+                System.Diagnostics.Debug.WriteLine("API Key not configured - GeminiService not registered");
             }
             System.Diagnostics.Debug.WriteLine("============================");
 

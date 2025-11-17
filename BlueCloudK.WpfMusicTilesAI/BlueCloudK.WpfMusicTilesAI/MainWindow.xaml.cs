@@ -12,32 +12,17 @@ namespace BlueCloudK.WpfMusicTilesAI
     {
         private readonly MainViewModel _mainViewModel;
         private readonly StartViewModel _startViewModel;
-        private readonly LoginViewModel? _loginViewModel;
         private GameViewModel? _gameViewModel;
 
-        public MainWindow(MainViewModel mainViewModel, StartViewModel startViewModel, LoginViewModel? loginViewModel = null)
+        public MainWindow(MainViewModel mainViewModel, StartViewModel startViewModel)
         {
             InitializeComponent();
 
             _mainViewModel = mainViewModel;
             _startViewModel = startViewModel;
-            _loginViewModel = loginViewModel;
 
             DataContext = _mainViewModel;
             StartView.DataContext = _startViewModel;
-
-            // Only set LoginView DataContext if LoginViewModel is available
-            if (_loginViewModel != null)
-            {
-                LoginView.DataContext = _loginViewModel;
-
-                // Wire up login success event
-                _loginViewModel.OnAuthenticationSuccess += async () =>
-                {
-                    // Hide login screen after successful authentication
-                    _mainViewModel.ShowLogin = false;
-                };
-            }
 
             // Wire up events
             _startViewModel.OnStartGame += async (description) =>

@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <configuration>
 	<appSettings>
-		<!-- OAuth 2.0 Configuration (Required) -->
-		<!-- Get OAuth credentials from: https://console.cloud.google.com/apis/credentials -->
-		<!-- When creating OAuth 2.0 Client ID, select "Desktop app" as the Application type -->
-		<!-- Google will automatically configure http://localhost as an authorized redirect URI -->
-		<add key="GOOGLE_CLIENT_ID" value=""/>
-		<add key="GOOGLE_CLIENT_SECRET" value=""/>
+		<!-- Gemini API Key Configuration (Required) -->
+		<!-- Get your FREE API key from: https://aistudio.google.com/app/apikey -->
+		<!--
+		INSTRUCTIONS:
+		1. Visit https://aistudio.google.com/app/apikey
+		2. Sign in with your Google account
+		3. Click "Create API key"
+		4. Copy the API key
+		5. Paste it below (replace the empty value="")
+		6. Save this file
+		7. Restart the application
 
-		<!-- DEPRECATED: Redirect URI is not needed for Desktop apps -->
-		<!-- The Google.Apis.Auth library automatically handles localhost redirects -->
-		<!-- Leave this empty or remove it -->
-		<!-- <add key="REDIRECT_URI" value=""/> -->
-
-		<!-- OPTION 2: API Key (Fallback, less secure - currently not supported) -->
-		<!-- Get your API key from: https://aistudio.google.com/app/apikey -->
-		<!-- <add key="GEMINI_API_KEY" value="YOUR_API_KEY_HERE"/> -->
+		Each user should create their own API key using their Google account.
+		This allows each user to use their own Gemini API quota (free tier available).
+		-->
+		<add key="GEMINI_API_KEY" value=""/>
 	</appSettings>
 </configuration>
