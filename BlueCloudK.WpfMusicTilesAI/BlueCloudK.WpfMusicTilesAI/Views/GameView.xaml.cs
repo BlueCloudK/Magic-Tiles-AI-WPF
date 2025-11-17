@@ -46,9 +46,8 @@ namespace BlueCloudK.WpfMusicTilesAI.Views
             {
                 // Create and show settings window
                 var settingsViewModel = new SettingsViewModel(settingsService);
-                var settingsWindow = new SettingsWindow
+                var settingsWindow = new SettingsWindow(settingsViewModel)
                 {
-                    DataContext = settingsViewModel,
                     Owner = Window.GetWindow(this)
                 };
                 settingsWindow.ShowDialog();
