@@ -3,13 +3,15 @@
 	<appSettings>
 		<!-- OAuth 2.0 Configuration (Required) -->
 		<!-- Get OAuth credentials from: https://console.cloud.google.com/apis/credentials -->
+		<!-- When creating OAuth 2.0 Client ID, select "Desktop app" as the Application type -->
+		<!-- Google will automatically configure http://localhost as an authorized redirect URI -->
 		<add key="GOOGLE_CLIENT_ID" value=""/>
 		<add key="GOOGLE_CLIENT_SECRET" value=""/>
 
-		<!-- Redirect URI for OAuth 2.0 callback -->
-		<!-- This must match the redirect URI configured in Google Cloud Console -->
-		<!-- For desktop apps, use: http://127.0.0.1:[PORT]/signin-google -->
-		<add key="REDIRECT_URI" value="http://127.0.0.1:58291/signin-google"/>
+		<!-- DEPRECATED: Redirect URI is not needed for Desktop apps -->
+		<!-- The Google.Apis.Auth library automatically handles localhost redirects -->
+		<!-- Leave this empty or remove it -->
+		<!-- <add key="REDIRECT_URI" value=""/> -->
 
 		<!-- OPTION 2: API Key (Fallback, less secure - currently not supported) -->
 		<!-- Get your API key from: https://aistudio.google.com/app/apikey -->

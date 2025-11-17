@@ -16,7 +16,6 @@ namespace BlueCloudK.WpfMusicTilesAI.Services
     {
         private readonly string _clientId;
         private readonly string _clientSecret;
-        private readonly string? _redirectUri;
         private UserCredential? _credential;
 
         // Required scopes for Generative AI
@@ -31,11 +30,10 @@ namespace BlueCloudK.WpfMusicTilesAI.Services
         public UserCredential? CurrentCredential => _credential;
         public bool IsAuthenticated => _credential != null && !string.IsNullOrEmpty(_credential.Token.AccessToken);
 
-        public GoogleAuthService(string clientId, string clientSecret, string? redirectUri = null)
+        public GoogleAuthService(string clientId, string clientSecret)
         {
             _clientId = clientId ?? throw new ArgumentNullException(nameof(clientId));
             _clientSecret = clientSecret ?? throw new ArgumentNullException(nameof(clientSecret));
-            _redirectUri = redirectUri;
         }
 
         public async Task<UserCredential> AuthenticateAsync()
@@ -55,25 +53,18 @@ namespace BlueCloudK.WpfMusicTilesAI.Services
                     "token.json"
                 );
 
-                // Use custom redirect URI if provided
-                ICodeReceiver? codeReceiver = null;
-                if (!string.IsNullOrEmpty(_redirectUri) && Uri.TryCreate(_redirectUri, UriKind.Absolute, out var uri))
-                {
-                    // Extract port from redirect URI (e.g., http://127.0.0.1:58291/signin-google)
-                    var port = uri.Port;
-                    var path = uri.AbsolutePath;
-
-                    System.Diagnostics.Debug.WriteLine($"Using custom redirect URI: {_redirectUri} (Port: {port}, Path: {path})");
-                    codeReceiver = new Google.Apis.Auth.OAuth2.LocalServerCodeReceiver("127.0.0.1", port);
-                }
+                // For desktop apps, GoogleWebAuthorizationBroker automatically uses LocalServerCodeReceiver
+                // which starts a local HTTP server on a random port (e.g., http://localhost:xxxxx)
+                // No need to specify custom redirect URI - Google Cloud Console automatically accepts
+                // http://localhost for Desktop app type OAuth clients
+                System.Diagnostics.Debug.WriteLine("Starting OAuth authentication flow...");
 
                 _credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(
                     clientSecrets,
                     Scopes,
                     "user",
                     CancellationToken.None,
-                    new FileDataStore(credPath, true),
-                    codeReceiver
+                    new FileDataStore(credPath, true)
                 );
 
                 return _credential;
