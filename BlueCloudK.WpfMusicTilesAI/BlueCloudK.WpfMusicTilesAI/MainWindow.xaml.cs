@@ -12,32 +12,27 @@ namespace BlueCloudK.WpfMusicTilesAI
     {
         private readonly MainViewModel _mainViewModel;
         private readonly StartViewModel _startViewModel;
-        private readonly LoginViewModel? _loginViewModel;
         private GameViewModel? _gameViewModel;
 
-        public MainWindow(MainViewModel mainViewModel, StartViewModel startViewModel, LoginViewModel? loginViewModel = null)
+        public MainWindow(MainViewModel mainViewModel, StartViewModel startViewModel)
         {
             InitializeComponent();
 
             _mainViewModel = mainViewModel;
             _startViewModel = startViewModel;
-            _loginViewModel = loginViewModel;
 
             DataContext = _mainViewModel;
             StartView.DataContext = _startViewModel;
 
-            // Only set LoginView DataContext if LoginViewModel is available
-            if (_loginViewModel != null)
+            // Wire up StartView loaded event to handle library playback
+            StartView.Loaded += (s, e) =>
             {
-                LoginView.DataContext = _loginViewModel;
-
-                // Wire up login success event
-                _loginViewModel.OnAuthenticationSuccess += async () =>
+                // Wire up library playback event
+                if (StartView is Views.StartView startView)
                 {
-                    // Hide login screen after successful authentication
-                    _mainViewModel.ShowLogin = false;
-                };
-            }
+                    startView.PlayLocalSong += HandlePlayLocalSong;
+                }
+            };
 
             // Wire up events
             _startViewModel.OnStartGame += async (description) =>
@@ -73,6 +68,53 @@ namespace BlueCloudK.WpfMusicTilesAI
                     }
                 }
             };
+        }
+
+        private async void HandlePlayLocalSong(Models.LocalSong song)
+        {
+            try
+            {
+                // Get services
+                var app = (App)Application.Current;
+                var beatMapCache = app.Services.GetService(typeof(Services.IBeatMapCacheService)) as Services.IBeatMapCacheService;
+
+                if (beatMapCache == null || string.IsNullOrEmpty(song.BeatMapPath))
+                {
+                    System.Diagnostics.Debug.WriteLine("Cannot play song: beat map not found");
+                    return;
+                }
+
+                // Load beat map from cache
+                var beatMap = await beatMapCache.LoadBeatMapAsync(song.BeatMapPath);
+                if (beatMap == null)
+                {
+                    System.Diagnostics.Debug.WriteLine("Failed to load beat map from cache");
+                    return;
+                }
+
+                // Set current beat map and song
+                _mainViewModel.CurrentBeatMap = beatMap;
+                _mainViewModel.CurrentSong = song;
+                _mainViewModel.CurrentState = Models.GameState.Playing;
+
+                // Setup GameView
+                var gameViewModel = new GameViewModel(
+                    app.Services.GetService(typeof(Services.IAudioService)) as Services.IAudioService
+                        ?? throw new System.Exception("AudioService not found"));
+
+                gameViewModel.Initialize(beatMap, song);
+                gameViewModel.OnGameEnd += () =>
+                {
+                    _mainViewModel.EndGameCommand.Execute(null);
+                };
+
+                GameView.DataContext = gameViewModel;
+                _gameViewModel = gameViewModel;
+            }
+            catch (System.Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error playing local song: {ex.Message}");
+            }
         }
 
         private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)

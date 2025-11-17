@@ -19,9 +19,9 @@ namespace BlueCloudK.WpfMusicTilesAI.Services
         private UserCredential? _credential;
 
         // Required scopes for Generative AI
+        // Using basic scopes - the main Generative Language API scope
         private static readonly string[] Scopes = {
-            "https://www.googleapis.com/auth/generative-language.retriever",
-            "https://www.googleapis.com/auth/generative-language.tuning",
+            "https://www.googleapis.com/auth/generative-language",
             "openid",
             "profile",
             "email"
@@ -52,6 +52,12 @@ namespace BlueCloudK.WpfMusicTilesAI.Services
                     "MagicTilesAI",
                     "token.json"
                 );
+
+                // For desktop apps, GoogleWebAuthorizationBroker automatically uses LocalServerCodeReceiver
+                // which starts a local HTTP server on a random port (e.g., http://localhost:xxxxx)
+                // No need to specify custom redirect URI - Google Cloud Console automatically accepts
+                // http://localhost for Desktop app type OAuth clients
+                System.Diagnostics.Debug.WriteLine("Starting OAuth authentication flow...");
 
                 _credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(
                     clientSecrets,

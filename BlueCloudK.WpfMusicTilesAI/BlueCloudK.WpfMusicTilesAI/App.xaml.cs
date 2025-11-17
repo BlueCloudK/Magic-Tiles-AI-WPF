@@ -33,42 +33,56 @@ namespace BlueCloudK.WpfMusicTilesAI
 
         private void ConfigureServices(IServiceCollection services)
         {
-            // Get OAuth credentials from configuration
-            var clientId = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID")
-                          ?? ConfigurationManager.AppSettings["GOOGLE_CLIENT_ID"];
+            // Get Gemini API Key from configuration
+            var apiKey = Environment.GetEnvironmentVariable("GEMINI_API_KEY")
+                        ?? ConfigurationManager.AppSettings["GEMINI_API_KEY"];
 
-            var clientSecret = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_SECRET")
-                              ?? ConfigurationManager.AppSettings["GOOGLE_CLIENT_SECRET"];
+            // Get Gemini Model from configuration (default: gemini-2.0-flash-exp)
+            var model = Environment.GetEnvironmentVariable("GEMINI_MODEL")
+                       ?? ConfigurationManager.AppSettings["GEMINI_MODEL"]
+                       ?? "gemini-2.0-flash-exp";
+
+            // DEBUG: Log API Key configuration
+            System.Diagnostics.Debug.WriteLine($"=== App ConfigureServices ===");
+            System.Diagnostics.Debug.WriteLine($"API Key from config: '{(string.IsNullOrEmpty(apiKey) ? "NULL/EMPTY" : "***SET***")}'");
+            System.Diagnostics.Debug.WriteLine($"Gemini Model: {model}");
 
             // Register services
-            // OAuth is now required for Gemini API
-            // Check if credentials are configured (not placeholders)
-            bool hasValidOAuthCredentials = !string.IsNullOrEmpty(clientId)
-                && !string.IsNullOrEmpty(clientSecret)
-                && !clientId.Contains("YOUR_")
-                && !clientSecret.Contains("YOUR_");
+            // Check if API key is configured (not placeholders)
+            bool hasValidApiKey = !string.IsNullOrEmpty(apiKey)
+                && !apiKey.Contains("YOUR_")
+                && !apiKey.Contains("API_KEY_HERE");
 
-            if (hasValidOAuthCredentials)
+            System.Diagnostics.Debug.WriteLine($"Has valid API Key: {hasValidApiKey}");
+
+            if (hasValidApiKey)
             {
-                services.AddSingleton<IGoogleAuthService>(sp => new GoogleAuthService(clientId!, clientSecret!));
-
-                // Register Gemini service using OAuth authentication
-                services.AddSingleton<IGeminiService>(sp =>
-                {
-                    var authService = sp.GetRequiredService<IGoogleAuthService>();
-                    return new GeminiService(authService);
-                });
-
-                // Register LoginViewModel only when OAuth is configured
-                services.AddTransient<LoginViewModel>();
+                System.Diagnostics.Debug.WriteLine($"Registering GeminiService with model: {model}");
+                // Register Gemini service with API Key and selected model
+                services.AddSingleton<IGeminiService>(sp => new GeminiService(apiKey!, model));
             }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("API Key not configured - GeminiService not registered");
+            }
+            System.Diagnostics.Debug.WriteLine("============================");
 
             services.AddSingleton<IAudioService, AudioService>();
+            services.AddSingleton<IBeatMapCacheService, BeatMapCacheService>();
+            services.AddSingleton<IMusicLibraryService, MusicLibraryService>();
+            services.AddSingleton<IAudioAnalysisService, AudioAnalysisService>();
+
+            // Settings Service
+            var settingsService = new SettingsService();
+            settingsService.LoadSettingsAsync().Wait(); // Load settings on startup
+            services.AddSingleton<ISettingsService>(settingsService);
 
             // Register ViewModels
             services.AddTransient<MainViewModel>();
             services.AddTransient<StartViewModel>();
             services.AddTransient<GameViewModel>();
+            services.AddTransient<LibraryViewModel>();
+            services.AddTransient<SettingsViewModel>();
 
             // Register Main Window
             services.AddSingleton<MainWindow>();

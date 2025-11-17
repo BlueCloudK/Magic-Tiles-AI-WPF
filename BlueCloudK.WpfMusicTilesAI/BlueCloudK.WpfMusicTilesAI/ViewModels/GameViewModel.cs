@@ -68,6 +68,13 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
             CurrentTime = 0;
             ActiveNotes.Clear();
 
+            // Load and play audio file
+            if (!string.IsNullOrEmpty(song.Url) && System.IO.File.Exists(song.Url))
+            {
+                _audioService.Load(song.Url);
+                _audioService.Play();
+            }
+
             // Start game
             _gameTimer.Start();
         }

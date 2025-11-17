@@ -42,13 +42,7 @@
                             </Rectangle.RenderTransform>
                             <Rectangle.Style>
                                 <Style TargetType="Rectangle">
-                                    <Setter Property="Canvas.Left">
-                                        <Setter.Value>
-                                            <MultiBinding Converter="{StaticResource LaneToXConverter}">
-                                                <Binding Path="Lane"/>
-                                            </MultiBinding>
-                                        </Setter.Value>
-                                    </Setter>
+                                    <Setter Property="Canvas.Left" Value="{Binding Lane, Converter={StaticResource LaneToXConverter}}"/>
                                     <Setter Property="Canvas.Top" Value="{Binding Y}"/>
                                 </Style>
                             </Rectangle.Style>
