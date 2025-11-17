@@ -21,15 +21,37 @@ namespace BlueCloudK.WpfMusicTilesAI
         {
             base.OnStartup(e);
 
-            // Setup Dependency Injection
-            var services = new ServiceCollection();
-            ConfigureServices(services);
-            _serviceProvider = services.BuildServiceProvider();
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("=== App OnStartup ===");
 
-            // Show main window
-            var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
-            MainWindow = mainWindow;
-            mainWindow.Show();
+                // Setup Dependency Injection
+                var services = new ServiceCollection();
+                ConfigureServices(services);
+                _serviceProvider = services.BuildServiceProvider();
+
+                System.Diagnostics.Debug.WriteLine("ServiceProvider built successfully");
+
+                // Show main window
+                System.Diagnostics.Debug.WriteLine("Creating MainWindow...");
+                var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
+
+                System.Diagnostics.Debug.WriteLine("Setting MainWindow property...");
+                MainWindow = mainWindow;
+
+                System.Diagnostics.Debug.WriteLine("Showing MainWindow...");
+                mainWindow.Show();
+
+                System.Diagnostics.Debug.WriteLine("MainWindow shown successfully");
+                System.Diagnostics.Debug.WriteLine("=====================");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"FATAL ERROR in OnStartup: {ex}");
+                MessageBox.Show($"Failed to start application:\n\n{ex.Message}\n\nStack trace:\n{ex.StackTrace}",
+                    "Startup Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Shutdown(1);
+            }
         }
 
         private void ConfigureServices(IServiceCollection services)

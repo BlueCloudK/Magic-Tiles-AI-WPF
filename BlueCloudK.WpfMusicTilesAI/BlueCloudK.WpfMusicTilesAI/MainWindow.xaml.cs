@@ -16,13 +16,18 @@ namespace BlueCloudK.WpfMusicTilesAI
 
         public MainWindow(MainViewModel mainViewModel, StartViewModel startViewModel)
         {
+            System.Diagnostics.Debug.WriteLine("=== MainWindow Constructor ===");
+            System.Diagnostics.Debug.WriteLine("Calling InitializeComponent...");
             InitializeComponent();
+            System.Diagnostics.Debug.WriteLine("InitializeComponent completed");
 
             _mainViewModel = mainViewModel;
             _startViewModel = startViewModel;
 
+            System.Diagnostics.Debug.WriteLine("Setting DataContext...");
             DataContext = _mainViewModel;
             StartView.DataContext = _startViewModel;
+            System.Diagnostics.Debug.WriteLine("DataContext set");
 
             // Wire up StartView loaded event to handle library playback
             StartView.Loaded += (s, e) =>
@@ -68,6 +73,9 @@ namespace BlueCloudK.WpfMusicTilesAI
                     }
                 }
             };
+
+            System.Diagnostics.Debug.WriteLine("MainWindow constructor completed successfully");
+            System.Diagnostics.Debug.WriteLine("==============================");
         }
 
         private async void HandlePlayLocalSong(Models.LocalSong song)
