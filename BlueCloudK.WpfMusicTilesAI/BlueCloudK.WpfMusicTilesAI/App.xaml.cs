@@ -37,9 +37,15 @@ namespace BlueCloudK.WpfMusicTilesAI
             var apiKey = Environment.GetEnvironmentVariable("GEMINI_API_KEY")
                         ?? ConfigurationManager.AppSettings["GEMINI_API_KEY"];
 
+            // Get Gemini Model from configuration (default: gemini-2.0-flash-exp)
+            var model = Environment.GetEnvironmentVariable("GEMINI_MODEL")
+                       ?? ConfigurationManager.AppSettings["GEMINI_MODEL"]
+                       ?? "gemini-2.0-flash-exp";
+
             // DEBUG: Log API Key configuration
             System.Diagnostics.Debug.WriteLine($"=== App ConfigureServices ===");
             System.Diagnostics.Debug.WriteLine($"API Key from config: '{(string.IsNullOrEmpty(apiKey) ? "NULL/EMPTY" : "***SET***")}'");
+            System.Diagnostics.Debug.WriteLine($"Gemini Model: {model}");
 
             // Register services
             // Check if API key is configured (not placeholders)
@@ -51,9 +57,9 @@ namespace BlueCloudK.WpfMusicTilesAI
 
             if (hasValidApiKey)
             {
-                System.Diagnostics.Debug.WriteLine("Registering GeminiService with API Key");
-                // Register Gemini service with API Key
-                services.AddSingleton<IGeminiService>(sp => new GeminiService(apiKey!));
+                System.Diagnostics.Debug.WriteLine($"Registering GeminiService with model: {model}");
+                // Register Gemini service with API Key and selected model
+                services.AddSingleton<IGeminiService>(sp => new GeminiService(apiKey!, model));
             }
             else
             {

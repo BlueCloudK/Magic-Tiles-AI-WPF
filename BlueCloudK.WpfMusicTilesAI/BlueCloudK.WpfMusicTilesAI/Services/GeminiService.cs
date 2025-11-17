@@ -13,15 +13,17 @@ namespace BlueCloudK.WpfMusicTilesAI.Services
     public class GeminiService : IGeminiService
     {
         private readonly string _apiKey;
+        private readonly string _model;
         private readonly HttpClient _httpClient;
         private const string BaseUrl = "https://generativelanguage.googleapis.com/v1beta";
 
-        public GeminiService(string apiKey)
+        public GeminiService(string apiKey, string model = "gemini-2.0-flash-exp")
         {
             if (string.IsNullOrWhiteSpace(apiKey))
                 throw new ArgumentException("API Key cannot be null or empty", nameof(apiKey));
 
             _apiKey = apiKey;
+            _model = string.IsNullOrWhiteSpace(model) ? "gemini-2.0-flash-exp" : model;
             _httpClient = new HttpClient();
         }
 
@@ -92,8 +94,8 @@ namespace BlueCloudK.WpfMusicTilesAI.Services
                 var requestJson = JsonConvert.SerializeObject(requestBody);
                 var content = new StringContent(requestJson, System.Text.Encoding.UTF8, "application/json");
 
-                // Use API key in query string
-                var url = $"{BaseUrl}/models/gemini-2.0-flash-exp:generateContent?key={_apiKey}";
+                // Use API key in query string with selected model
+                var url = $"{BaseUrl}/models/{_model}:generateContent?key={_apiKey}";
                 var request = new HttpRequestMessage(HttpMethod.Post, url)
                 {
                     Content = content
