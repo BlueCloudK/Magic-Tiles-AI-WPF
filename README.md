@@ -2,34 +2,52 @@
 
 🎮 **AI-Powered Rhythm Game cho Windows**
 
-Magic Tiles AI là một rhythm game (trò chơi âm nhạc theo nhịp) được xây dựng bằng WPF, nơi **beat map được AI tự động tạo ra** dựa trên mô tả của bạn. Mỗi lần chơi sẽ là một trải nghiệm hoàn toàn mới!
+Magic Tiles AI là một rhythm game (trò chơi âm nhạc theo nhịp) được xây dựng bằng WPF. Import nhạc local (.mp3/.wav) từ máy bạn, app tự động **phân tích audio** và tạo beat map chính xác theo rhythm thật!
 
 ## ✨ Features
 
-- 🤖 **AI-Generated Beat Maps**: Sử dụng Google Gemini AI để tạo beat map dựa trên mô tả của bạn
-- 🔐 **Google OAuth 2.0**: Đăng nhập an toàn với Google account, không cần nhập API key
-- 🎵 **4-Lane Rhythm Game**: Gameplay giống Piano Tiles với 4 lanes
-- 🎹 **Long Notes**: Hỗ trợ cả tap notes và long/sustain notes
-- 🎨 **Modern UI**: Giao diện đẹp mắt với gradient backgrounds và animations
+- 🎵 **Local Music Library**: Import file nhạc .mp3/.wav từ máy tính
+- 🤖 **Auto Beat Map Generation**: Phân tích audio thực tế với Python/librosa
+- 💾 **Beat Map Caching**: Lần đầu phân tích, lần sau load ngay từ cache
+- 🎹 **4-Lane Rhythm Game**: Gameplay giống Piano Tiles với 4 lanes
+- 🎨 **Spotify-like UI**: Giao diện library đẹp mắt, hiện đại
 - ⚡ **Real-time Scoring**: Hệ thống điểm và combo theo thời gian thực
+- 🔄 **Regenerate Option**: Tạo lại beat map nếu không hài lòng
+- 📊 **Play Statistics**: Theo dõi số lần chơi cho mỗi bài
 - 🏗️ **MVVM Architecture**: Code được tổ chức tốt theo mẫu MVVM
-- 💾 **Token Persistence**: Lưu OAuth token, không cần đăng nhập lại mỗi lần
 
 ## 🛠️ Tech Stack
 
+### C# / .NET
 - **.NET 9.0** - Latest .NET framework
 - **WPF** - Windows Presentation Foundation
 - **MVVM Pattern** - Clean architecture với CommunityToolkit.Mvvm
-- **Google Gemini AI** - AI để generate beat maps
 - **NAudio** - Audio playback
 - **Dependency Injection** - Microsoft.Extensions.DependencyInjection
+- **Newtonsoft.Json** - JSON serialization
+
+### Python (Audio Analysis)
+- **Python 3.8+** - Runtime
+- **librosa** - Audio analysis và beat detection
+- **numpy** - Numerical computing
+
+### AI (Optional)
+- **Google Gemini API** - Fallback beat map generation nếu không dùng audio analysis
 
 ## 📋 Prerequisites
 
+### Bắt buộc:
 - Windows 10/11
 - .NET 9.0 SDK
 - Visual Studio 2022 (hoặc VS Code với C# extension)
-- Google Cloud Project với OAuth 2.0 credentials
+
+### Khuyến nghị (cho Audio Analysis):
+- Python 3.8 hoặc mới hơn
+- pip package manager
+- librosa và numpy
+
+### Tùy chọn (nếu không dùng Audio Analysis):
+- Google Gemini API key (free)
 
 ## 🚀 Getting Started
 
@@ -37,63 +55,38 @@ Magic Tiles AI là một rhythm game (trò chơi âm nhạc theo nhịp) đượ
 
 ```bash
 git clone https://github.com/BlueCloudK/Magic-Tiles-AI-WPF.git
-cd Magic-Tiles-AI-WPF/BlueCloudK.WpfMusicTilesAI
+cd Magic-Tiles-AI-WPF
 ```
 
-### 2. Cấu hình Google OAuth 2.0
+### 2. Setup Python (Khuyến nghị)
 
-App sử dụng **Google OAuth 2.0** để authentication - giống như các app Google khác (Gmail, Drive, v.v.). Người dùng chỉ cần đăng nhập Google, không phải tự tạo API key.
+**Cách 1: Tự động (Windows)**
+```bash
+cd BeatAnalysis
+install.bat
+```
 
-#### **Bước 1: Tạo Google Cloud Project**
+**Cách 2: Thủ công**
+```bash
+pip install librosa numpy
+```
 
-1. Truy cập [Google Cloud Console](https://console.cloud.google.com/)
-2. Tạo project mới hoặc chọn project hiện có
-3. Enable **Generative Language API**:
-   - Vào **APIs & Services → Library**
-   - Tìm "Generative Language API"
-   - Click **Enable**
+Chi tiết: Xem [AUDIO_ANALYSIS_GUIDE.md](AUDIO_ANALYSIS_GUIDE.md)
 
-#### **Bước 2: Tạo OAuth 2.0 Credentials**
+### 3. Cấu hình API Key (Tùy chọn)
 
-1. Vào **APIs & Services → Credentials**
-2. Click **Create Credentials → OAuth client ID**
-3. Nếu chưa configure OAuth consent screen:
-   - Click **Configure Consent Screen**
-   - Chọn **External** (cho testing) hoặc **Internal** (nếu có Google Workspace)
-   - Điền app name (ví dụ: "Magic Tiles AI")
-   - Điền user support email và developer contact
-   - Click **Save and Continue**
-4. Quay lại **Create OAuth client ID**:
-   - Chọn **Desktop app** làm Application type
-   - Đặt tên cho OAuth client (ví dụ: "Magic Tiles AI Desktop")
-   - Click **Create**
-5. Copy **Client ID** và **Client secret**
+Nếu không muốn cài Python, bạn có thể dùng Gemini API để generate beat map.
 
-#### **Bước 3: Cấu hình App.config**
-
-Mở file `BlueCloudK.WpfMusicTilesAI/App.config` và điền credentials:
+1. Lấy FREE API key từ: https://aistudio.google.com/app/apikey
+2. Copy `App.config.example` thành `App.config`
+3. Điền API key vào:
 
 ```xml
-<?xml version="1.0" encoding="utf-8" ?>
-<configuration>
-    <appSettings>
-        <add key="GOOGLE_CLIENT_ID" value="YOUR_CLIENT_ID.apps.googleusercontent.com"/>
-        <add key="GOOGLE_CLIENT_SECRET" value="YOUR_CLIENT_SECRET"/>
-    </appSettings>
-</configuration>
+<add key="GEMINI_API_KEY" value="YOUR_API_KEY_HERE"/>
+<add key="GEMINI_MODEL" value="gemini-2.0-flash-exp"/>
 ```
 
-#### **Bước 4: Đăng nhập lần đầu**
-
-1. Run app bằng `dotnet run` hoặc F5 trong Visual Studio
-2. Bạn sẽ thấy màn hình **Sign in with Google**
-3. Click vào button "Sign in with Google"
-4. Browser sẽ mở ra, đăng nhập Google account của bạn
-5. Authorize app để truy cập Generative Language API
-6. Token sẽ được lưu tự động tại `%AppData%/MagicTilesAI/token.json`
-7. Lần sau không cần đăng nhập lại!
-
-### 3. Build và Run
+### 4. Build và Run
 
 ```bash
 cd BlueCloudK.WpfMusicTilesAI
@@ -106,52 +99,100 @@ Hoặc mở solution trong Visual Studio và nhấn F5.
 
 ## 🎮 How to Play
 
-1. **Nhập mô tả bài hát**: Mô tả loại nhạc bạn muốn chơi
-   - Ví dụ: "fast electronic dance music"
-   - Ví dụ: "calm piano ballad"
-   - Ví dụ: "energetic rock song"
+### Cách 1: Audio Analysis (Recommend)
 
-2. **Nhấn "Generate & Play"**: AI sẽ tạo beat map dựa trên mô tả của bạn
-
-3. **Chơi game**:
+1. **Add Music**: Click "Add Music" button
+2. **Chọn file**: Chọn file .mp3 hoặc .wav từ máy bạn
+3. **Click Play**:
+   - Lần đầu: App phân tích audio → Tạo beat map (10-30s)
+   - Lần sau: Load beat map từ cache (tức thì!)
+4. **Chơi game**:
    - Nhấn phím **D, F, J, K** tương ứng với 4 lanes
    - Nhấn đúng thời điểm khi tile chạm vào hit zone (đường đỏ)
    - Giữ phím cho long notes
 
-4. **Scoring**:
-   - Perfect hit: 150 điểm
-   - Good hit: 100 điểm
-   - Combo multiplier: Điểm nhân với (combo/10 + 1)
+### Cách 2: AI Generate (Nếu không có Python)
+
+1. Cần có Gemini API key trong App.config
+2. App sẽ tự động fallback về AI generation
+3. Beat map sẽ dựa trên title/artist (ít chính xác hơn)
+
+### Scoring:
+- Perfect hit: 150 điểm
+- Good hit: 100 điểm
+- Combo multiplier: Điểm nhân với (combo/10 + 1)
 
 ## 📁 Project Structure
 
 ```
-BlueCloudK.WpfMusicTilesAI/
-├── Models/              # Data models (GameState, Note, BeatMap, Song, AuthenticationState)
-├── ViewModels/          # MVVM ViewModels (Main, Start, Game, Login)
-├── Views/               # XAML views (LoginView, StartView, GameView)
-├── Services/            # Services (GoogleAuthService, GeminiService, AudioService)
-├── Helpers/             # Utility classes (Converters)
-├── App.xaml             # Application resources
-├── MainWindow.xaml      # Main window với state management
-└── App.config           # Configuration file
+Magic-Tiles-AI-WPF/
+├── BeatAnalysis/                    # Python audio analysis
+│   ├── analyze_audio.py            # Main analysis script
+│   ├── requirements.txt            # Python dependencies
+│   ├── install.bat                 # Auto installer (Windows)
+│   └── README.md                   # Setup guide
+│
+├── BlueCloudK.WpfMusicTilesAI/
+│   ├── Models/                     # Data models
+│   │   ├── LocalSong.cs           # Local music file model
+│   │   ├── MusicLibrary.cs        # Library container
+│   │   ├── BeatMap.cs             # Beat map structure
+│   │   └── ...
+│   ├── ViewModels/                 # MVVM ViewModels
+│   │   ├── LibraryViewModel.cs    # Music library logic
+│   │   ├── MainViewModel.cs       # App state
+│   │   └── GameViewModel.cs       # Game logic
+│   ├── Views/                      # XAML views
+│   │   ├── LibraryView.xaml       # Spotify-like library UI
+│   │   ├── StartView.xaml         # Main screen
+│   │   └── GameView.xaml          # Game screen
+│   ├── Services/                   # Services
+│   │   ├── AudioAnalysisService.cs     # Python integration
+│   │   ├── BeatMapCacheService.cs      # Beat map caching
+│   │   ├── MusicLibraryService.cs      # Library management
+│   │   ├── GeminiService.cs            # AI fallback
+│   │   └── AudioService.cs             # Audio playback
+│   ├── Assets/                     # Images and logos
+│   └── App.config.example          # Configuration template
+│
+├── AUDIO_ANALYSIS_GUIDE.md         # Audio analysis guide
+├── TROUBLESHOOTING.md              # Common issues & fixes
+└── README.md                       # This file
 ```
 
 ## 🎯 Features Roadmap
 
-- [ ] Upload file nhạc local thay vì chỉ mô tả
-- [ ] Lưu và replay beat maps đã generate
+- [x] Local music library
+- [x] Audio analysis với librosa
+- [x] Beat map caching
+- [x] Spotify-like UI
+- [x] Play statistics
+- [ ] Album art extraction
+- [ ] Multiple difficulty modes
 - [ ] Leaderboard system
-- [ ] Different difficulty levels
-- [ ] More visual effects và animations
+- [ ] Visual effects improvements
 - [ ] Sound effects khi hit notes
 - [ ] Settings screen (volume, speed, etc.)
 
-## 🐛 Known Issues
+## 💾 Data Storage
 
-- Audio playback chưa được implement đầy đủ (cần file audio)
-- Game loop có thể lag trên máy yếu
-- Một số edge cases với long notes chưa được handle
+Beat maps và library được lưu tại:
+
+```
+%LocalAppData%/MagicTilesAI/
+├── BeatMaps/              # Cached beat maps (.json)
+│   ├── {songId}.json
+│   └── ...
+└── library.json           # Music library
+```
+
+## 🐛 Troubleshooting
+
+Xem [TROUBLESHOOTING.md](TROUBLESHOOTING.md) để biết cách fix các lỗi phổ biến:
+- Rate limit (429)
+- Python not found
+- Audio analysis errors
+- Beat map không khớp với nhạc
 
 ## 🤝 Contributing
 
@@ -166,12 +207,11 @@ This project is open source và available under the [MIT License](LICENSE).
 
 ## 🙏 Credits
 
-- **Google Gemini AI** - For AI beat map generation
-- **Google OAuth 2.0** - For secure authentication
-- **NAudio** - For audio playback
-- **CommunityToolkit.MVVM** - For MVVM helpers
-- **Google.Apis.Auth** - For OAuth implementation
-- Lấy ý tưởng từ dự án **magic-tiles-ai** (React/TypeScript version)
+- **librosa** - Audio analysis và beat detection
+- **Google Gemini AI** - Fallback beat map generation
+- **NAudio** - Audio playback
+- **CommunityToolkit.MVVM** - MVVM helpers
+- **Newtonsoft.Json** - JSON serialization
 
 ## 📧 Contact
 
