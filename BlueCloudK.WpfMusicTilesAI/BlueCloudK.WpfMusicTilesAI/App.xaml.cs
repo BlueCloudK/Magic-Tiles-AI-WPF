@@ -72,11 +72,17 @@ namespace BlueCloudK.WpfMusicTilesAI
             services.AddSingleton<IMusicLibraryService, MusicLibraryService>();
             services.AddSingleton<IAudioAnalysisService, AudioAnalysisService>();
 
+            // Settings Service
+            var settingsService = new SettingsService();
+            settingsService.LoadSettingsAsync().Wait(); // Load settings on startup
+            services.AddSingleton<ISettingsService>(settingsService);
+
             // Register ViewModels
             services.AddTransient<MainViewModel>();
             services.AddTransient<StartViewModel>();
             services.AddTransient<GameViewModel>();
             services.AddTransient<LibraryViewModel>();
+            services.AddTransient<SettingsViewModel>();
 
             // Register Main Window
             services.AddSingleton<MainWindow>();
