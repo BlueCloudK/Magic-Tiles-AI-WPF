@@ -28,6 +28,7 @@ namespace BlueCloudK.WpfMusicTilesAI
 
             // Show main window
             var mainWindow = _serviceProvider.GetRequiredService<MainWindow>();
+            MainWindow = mainWindow;
             mainWindow.Show();
         }
 
