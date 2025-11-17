@@ -12,8 +12,7 @@ namespace BlueCloudK.WpfMusicTilesAI.Services
         /// Saves a beat map to disk
         /// </summary>
         /// <param name="songId">Unique song identifier</param>
-        /// <param>
-beatMap">Beat map to save</param>
+        /// <param name="beatMap">Beat map to save</param>
         /// <returns>Path to the saved beat map file</returns>
         Task<string> SaveBeatMapAsync(string songId, BeatMap beatMap);
 
