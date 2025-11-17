@@ -23,7 +23,7 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
         private bool _showLogin = false;
 
         [ObservableProperty]
-        private bool _showStartView = true;
+        private bool _showStartView = false;
 
         [ObservableProperty]
         private bool _showSetupInstructions = false;
