@@ -13,11 +13,18 @@ namespace BlueCloudK.WpfMusicTilesAI.Views
         public GameView()
         {
             InitializeComponent();
-            Loaded += (s, e) => Focus(); // Ensure the control can receive key events
+            Loaded += (s, e) =>
+            {
+                System.Diagnostics.Debug.WriteLine("GameView loaded, setting focus...");
+                var focused = Focus();
+                System.Diagnostics.Debug.WriteLine($"Focus result: {focused}, IsFocused: {IsFocused}");
+            };
         }
 
         private void UserControl_KeyDown(object sender, KeyEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine($"KeyDown event: {e.Key}");
+
             if (DataContext is GameViewModel viewModel)
             {
                 int lane = e.Key switch
@@ -31,7 +38,9 @@ namespace BlueCloudK.WpfMusicTilesAI.Views
 
                 if (lane > 0)
                 {
+                    System.Diagnostics.Debug.WriteLine($"Handling key press for lane {lane}");
                     viewModel.HandleKeyPress(lane);
+                    e.Handled = true;
                 }
             }
         }

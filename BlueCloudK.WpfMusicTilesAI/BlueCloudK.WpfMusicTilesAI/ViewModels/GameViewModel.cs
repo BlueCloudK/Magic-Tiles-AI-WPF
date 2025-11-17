@@ -187,9 +187,25 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
         [RelayCommand]
         private void EndGame()
         {
-            _gameTimer.Stop();
-            _audioService.Stop();
-            OnGameEnd?.Invoke();
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("=== EndGame called ===");
+
+                System.Diagnostics.Debug.WriteLine("Stopping game timer...");
+                _gameTimer?.Stop();
+
+                System.Diagnostics.Debug.WriteLine("Stopping audio...");
+                _audioService?.Stop();
+
+                System.Diagnostics.Debug.WriteLine("Invoking OnGameEnd event...");
+                OnGameEnd?.Invoke();
+
+                System.Diagnostics.Debug.WriteLine("EndGame completed successfully");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in EndGame: {ex}");
+            }
         }
 
         public void Dispose()

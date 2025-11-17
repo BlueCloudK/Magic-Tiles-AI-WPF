@@ -36,17 +36,9 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Rectangle Width="90" Height="30" Fill="#00d9ff" Stroke="#0099cc" StrokeThickness="2">
-                            <Rectangle.RenderTransform>
-                                <TranslateTransform X="{Binding LaneX}" Y="{Binding Y}"/>
-                            </Rectangle.RenderTransform>
-                            <Rectangle.Style>
-                                <Style TargetType="Rectangle">
-                                    <Setter Property="Canvas.Left" Value="{Binding Lane, Converter={StaticResource LaneToXConverter}}"/>
-                                    <Setter Property="Canvas.Top" Value="{Binding Y}"/>
-                                </Style>
-                            </Rectangle.Style>
-                        </Rectangle>
+                        <Rectangle Width="90" Height="30" Fill="#00d9ff" Stroke="#0099cc" StrokeThickness="2"
+                                   Canvas.Left="{Binding Lane, Converter={StaticResource LaneToXConverter}}"
+                                   Canvas.Top="{Binding Y}"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

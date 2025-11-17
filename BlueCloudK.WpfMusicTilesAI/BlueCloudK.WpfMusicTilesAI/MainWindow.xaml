@@ -9,7 +9,8 @@
         mc:Ignorable="d"
         Title="Magic Tiles AI" Height="700" Width="900"
         WindowStartupLocation="CenterScreen"
-        Background="#0f0f23">
+        Background="#0f0f23"
+        PreviewKeyDown="Window_PreviewKeyDown">
     <Grid>
         <!-- Setup Instructions Screen (shows if API Key is not configured) -->
         <Grid x:Name="SetupInstructionsScreen"

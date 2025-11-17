@@ -1,6 +1,7 @@
 ﻿using BlueCloudK.WpfMusicTilesAI.ViewModels;
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Navigation;
 
 namespace BlueCloudK.WpfMusicTilesAI
@@ -129,6 +130,28 @@ namespace BlueCloudK.WpfMusicTilesAI
         {
             Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
             e.Handled = true;
+        }
+
+        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            // Forward key events to GameViewModel when in Playing state
+            if (_mainViewModel.CurrentState == Models.GameState.Playing && _gameViewModel != null)
+            {
+                int lane = e.Key switch
+                {
+                    Key.D => 1,
+                    Key.F => 2,
+                    Key.J => 3,
+                    Key.K => 4,
+                    _ => 0
+                };
+
+                if (lane > 0)
+                {
+                    _gameViewModel.HandleKeyPress(lane);
+                    e.Handled = true;
+                }
+            }
         }
     }
 }
