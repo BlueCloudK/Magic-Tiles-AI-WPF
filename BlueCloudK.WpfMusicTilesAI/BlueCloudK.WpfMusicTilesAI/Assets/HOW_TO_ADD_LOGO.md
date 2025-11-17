@@ -91,7 +91,3 @@ Mở file `MainWindow.xaml`, thêm thuộc tính Icon:
 - Sử dụng ICO cho window icon (multi-size support)
 - Giữ kích thước file < 500KB
 - Có thể dùng online tools như [favicon.io](https://favicon.io) để tạo .ico từ .png
-
-## Ví dụ XAML đầy đủ
-
-Xem file `Assets/ExampleUsage.xaml` để có ví dụ đầy đủ về cách sử dụng assets.

@@ -15,8 +15,6 @@
                                    xmlns:local="clr-namespace:BlueCloudK.WpfMusicTilesAI.Helpers"/>
             <local:GameStateToVisibilityConverter x:Key="GameStateToVisibilityConverter"
                                                  xmlns:local="clr-namespace:BlueCloudK.WpfMusicTilesAI.Helpers"/>
-            <local:InverseBoolConverter x:Key="InverseBoolConverter"
-                                       xmlns:local="clr-namespace:BlueCloudK.WpfMusicTilesAI.Helpers"/>
             <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"
                                             xmlns:local="clr-namespace:BlueCloudK.WpfMusicTilesAI.Helpers"/>
             <local:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"
