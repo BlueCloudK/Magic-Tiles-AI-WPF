@@ -19,6 +19,10 @@
                                        xmlns:local="clr-namespace:BlueCloudK.WpfMusicTilesAI.Helpers"/>
             <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"
                                             xmlns:local="clr-namespace:BlueCloudK.WpfMusicTilesAI.Helpers"/>
+            <local:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"
+                                                   xmlns:local="clr-namespace:BlueCloudK.WpfMusicTilesAI.Helpers"/>
+            <local:ZeroToVisibilityConverter x:Key="ZeroToVisibilityConverter"
+                                            xmlns:local="clr-namespace:BlueCloudK.WpfMusicTilesAI.Helpers"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

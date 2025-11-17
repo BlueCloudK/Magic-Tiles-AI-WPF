@@ -5,7 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:BlueCloudK.WpfMusicTilesAI.Views"
              mc:Ignorable="d"
-             d:DesignHeight="600" d:DesignWidth="800">
+             d:DesignHeight="600" d:DesignWidth="800"
+             Loaded="UserControl_Loaded">
     <Grid>
         <Grid.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -15,121 +16,188 @@
             </LinearGradientBrush>
         </Grid.Background>
 
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="500">
+        <Grid Margin="40">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
             <!-- Title -->
-            <TextBlock Text="Magic Tiles AI"
+            <TextBlock Grid.Row="0"
+                       Text="Magic Tiles AI"
                        FontSize="48"
                        FontWeight="Bold"
                        Foreground="White"
                        HorizontalAlignment="Center"
-                       Margin="0,0,0,20">
+                       Margin="0,0,0,30">
                 <TextBlock.Effect>
                     <DropShadowEffect Color="#e94560" BlurRadius="20" ShadowDepth="0"/>
                 </TextBlock.Effect>
             </TextBlock>
 
-            <TextBlock Text="AI-Powered Rhythm Game"
-                       FontSize="18"
-                       Foreground="#a8b2d1"
-                       HorizontalAlignment="Center"
-                       Margin="0,0,0,40"/>
-
-            <!-- Description Input -->
-            <TextBlock Text="Describe your song:"
-                       FontSize="16"
-                       Foreground="White"
-                       Margin="0,0,0,10"/>
-
-            <TextBox x:Name="DescriptionTextBox"
-                     Text="{Binding SongDescription, UpdateSourceTrigger=PropertyChanged}"
-                     FontSize="14"
-                     Padding="15,10"
-                     Background="#1a1a2e"
-                     Foreground="White"
-                     BorderBrush="#e94560"
-                     BorderThickness="2"
-                     TextWrapping="Wrap"
-                     AcceptsReturn="True"
-                     Height="100"
-                     Margin="0,0,0,10">
-                <TextBox.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="8"/>
+            <!-- Tab Control -->
+            <TabControl Grid.Row="1"
+                        Background="Transparent"
+                        BorderThickness="0">
+                <TabControl.Resources>
+                    <Style TargetType="TabControl">
+                        <Setter Property="Background" Value="Transparent"/>
                     </Style>
-                </TextBox.Resources>
-            </TextBox>
-
-            <TextBlock Text="Example: 'fast electronic dance music' or 'calm piano ballad'"
-                       FontSize="12"
-                       Foreground="#64748b"
-                       Margin="0,0,0,30"/>
-
-            <!-- Start Button -->
-            <Button Command="{Binding StartGameCommand}"
-                    Content="Generate &amp; Play"
-                    FontSize="18"
-                    FontWeight="Bold"
-                    Padding="30,15"
-                    Background="#e94560"
-                    Foreground="White"
-                    BorderThickness="0"
-                    Cursor="Hand"
-                    HorizontalAlignment="Center">
-                <Button.Style>
-                    <Style TargetType="Button">
+                    <Style TargetType="TabItem">
                         <Setter Property="Template">
                             <Setter.Value>
-                                <ControlTemplate TargetType="Button">
-                                    <Border Background="{TemplateBinding Background}"
-                                            CornerRadius="8"
-                                            Padding="{TemplateBinding Padding}">
-                                        <ContentPresenter HorizontalAlignment="Center"
-                                                        VerticalAlignment="Center"/>
+                                <ControlTemplate TargetType="TabItem">
+                                    <Border Name="Border"
+                                            Background="#1e293b"
+                                            BorderThickness="0"
+                                            CornerRadius="8,8,0,0"
+                                            Padding="20,12"
+                                            Margin="0,0,5,0">
+                                        <ContentPresenter x:Name="ContentSite"
+                                                        VerticalAlignment="Center"
+                                                        HorizontalAlignment="Center"
+                                                        ContentSource="Header"/>
                                     </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="Border" Property="Background" Value="#e94560"/>
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="False">
+                                            <Setter TargetName="Border" Property="Opacity" Value="0.7"/>
+                                        </Trigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Border" Property="Opacity" Value="1"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Setter.Value>
                         </Setter>
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#f76f8e"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Background" Value="#4a5568"/>
-                                <Setter Property="Foreground" Value="#9ca3af"/>
-                            </Trigger>
-                        </Style.Triggers>
+                        <Setter Property="Foreground" Value="White"/>
+                        <Setter Property="FontSize" Value="16"/>
+                        <Setter Property="FontWeight" Value="SemiBold"/>
                     </Style>
-                </Button.Style>
-            </Button>
+                </TabControl.Resources>
 
-            <!-- Error Message -->
-            <TextBlock Text="{Binding ErrorMessage}"
-                       FontSize="14"
-                       Foreground="#ef4444"
-                       TextWrapping="Wrap"
-                       HorizontalAlignment="Center"
-                       Margin="0,20,0,0"
-                       Visibility="{Binding ErrorMessage, Converter={StaticResource NullToVisibilityConverter}}"/>
+                <!-- AI Generate Tab -->
+                <TabItem Header="🎵 AI Generate">
+                    <Border Background="#0f1419cc"
+                            CornerRadius="0,8,8,8"
+                            Padding="40">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="500">
+                            <TextBlock Text="AI-Powered Rhythm Game"
+                                       FontSize="18"
+                                       Foreground="#a8b2d1"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,0,0,40"/>
 
-            <!-- Volume Control -->
-            <StackPanel Orientation="Horizontal"
-                       HorizontalAlignment="Center"
-                       Margin="0,30,0,0">
-                <TextBlock Text="Volume:"
-                          Foreground="White"
-                          VerticalAlignment="Center"
-                          Margin="0,0,10,0"/>
-                <Slider Value="{Binding Volume}"
-                       Minimum="0"
-                       Maximum="1"
-                       Width="200"
-                       VerticalAlignment="Center"/>
-                <TextBlock Text="{Binding Volume, StringFormat={}{0:P0}}"
-                          Foreground="White"
-                          VerticalAlignment="Center"
-                          Margin="10,0,0,0"
-                          Width="40"/>
-            </StackPanel>
-        </StackPanel>
+                            <!-- Description Input -->
+                            <TextBlock Text="Describe your song:"
+                                       FontSize="16"
+                                       Foreground="White"
+                                       Margin="0,0,0,10"/>
+
+                            <TextBox x:Name="DescriptionTextBox"
+                                     Text="{Binding SongDescription, UpdateSourceTrigger=PropertyChanged}"
+                                     FontSize="14"
+                                     Padding="15,10"
+                                     Background="#1a1a2e"
+                                     Foreground="White"
+                                     BorderBrush="#e94560"
+                                     BorderThickness="2"
+                                     TextWrapping="Wrap"
+                                     AcceptsReturn="True"
+                                     Height="100"
+                                     Margin="0,0,0,10">
+                                <TextBox.Resources>
+                                    <Style TargetType="Border">
+                                        <Setter Property="CornerRadius" Value="8"/>
+                                    </Style>
+                                </TextBox.Resources>
+                            </TextBox>
+
+                            <TextBlock Text="Example: 'fast electronic dance music' or 'calm piano ballad'"
+                                       FontSize="12"
+                                       Foreground="#64748b"
+                                       Margin="0,0,0,30"/>
+
+                            <!-- Start Button -->
+                            <Button Command="{Binding StartGameCommand}"
+                                    Content="Generate &amp; Play"
+                                    FontSize="18"
+                                    FontWeight="Bold"
+                                    Padding="30,15"
+                                    Background="#e94560"
+                                    Foreground="White"
+                                    BorderThickness="0"
+                                    Cursor="Hand"
+                                    HorizontalAlignment="Center">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                            CornerRadius="8"
+                                                            Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter HorizontalAlignment="Center"
+                                                                        VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#f76f8e"/>
+                                            </Trigger>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter Property="Background" Value="#4a5568"/>
+                                                <Setter Property="Foreground" Value="#9ca3af"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+
+                            <!-- Error Message -->
+                            <TextBlock Text="{Binding ErrorMessage}"
+                                       FontSize="14"
+                                       Foreground="#ef4444"
+                                       TextWrapping="Wrap"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,20,0,0"
+                                       Visibility="{Binding ErrorMessage, Converter={StaticResource NullToVisibilityConverter}}"/>
+
+                            <!-- Volume Control -->
+                            <StackPanel Orientation="Horizontal"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,30,0,0">
+                                <TextBlock Text="Volume:"
+                                          Foreground="White"
+                                          VerticalAlignment="Center"
+                                          Margin="0,0,10,0"/>
+                                <Slider Value="{Binding Volume}"
+                                       Minimum="0"
+                                       Maximum="1"
+                                       Width="200"
+                                       VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding Volume, StringFormat={}{0:P0}}"
+                                          Foreground="White"
+                                          VerticalAlignment="Center"
+                                          Margin="10,0,0,0"
+                                          Width="40"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </TabItem>
+
+                <!-- Your Library Tab -->
+                <TabItem Header="📚 Your Library">
+                    <Border Background="#0f1419cc"
+                            CornerRadius="0,8,8,8">
+                        <local:LibraryView x:Name="LibraryViewControl"/>
+                    </Border>
+                </TabItem>
+            </TabControl>
+        </Grid>
     </Grid>
 </UserControl>

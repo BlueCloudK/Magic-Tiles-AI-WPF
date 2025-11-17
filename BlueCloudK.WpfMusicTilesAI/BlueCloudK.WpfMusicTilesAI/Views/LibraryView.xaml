@@ -1,0 +1,375 @@
+<UserControl x:Class="BlueCloudK.WpfMusicTilesAI.Views.LibraryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:BlueCloudK.WpfMusicTilesAI.Views"
+             mc:Ignorable="d"
+             d:DesignHeight="600" d:DesignWidth="800">
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#1a1a2e" Offset="0"/>
+                <GradientStop Color="#16213e" Offset="0.5"/>
+                <GradientStop Color="#0f3460" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Margin="30,30,30,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="Your Library"
+                           FontSize="32"
+                           FontWeight="Bold"
+                           Foreground="White">
+                    <TextBlock.Effect>
+                        <DropShadowEffect Color="#e94560" BlurRadius="15" ShadowDepth="0"/>
+                    </TextBlock.Effect>
+                </TextBlock>
+                <TextBlock Text="{Binding Songs.Count, StringFormat={}{0} songs}"
+                           FontSize="14"
+                           Foreground="#a8b2d1"
+                           Margin="0,5,0,0"/>
+            </StackPanel>
+
+            <!-- Add Music Button -->
+            <Button Grid.Column="1"
+                    Command="{Binding AddMusicCommand}"
+                    Content="+ Add Music"
+                    FontSize="16"
+                    FontWeight="SemiBold"
+                    Padding="25,12"
+                    Background="#e94560"
+                    Foreground="White"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    VerticalAlignment="Center">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}"
+                                            CornerRadius="8"
+                                            Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#f76f8e"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Background" Value="#4a5568"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </Grid>
+
+        <!-- Songs List -->
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      Margin="30,0,30,0">
+            <ItemsControl ItemsSource="{Binding Songs}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="#1e293b"
+                                CornerRadius="8"
+                                Margin="0,0,0,10"
+                                Padding="15">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#2d3748"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="60"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Album Art Placeholder -->
+                                <Border Grid.Column="0"
+                                        Width="50"
+                                        Height="50"
+                                        Background="#0f3460"
+                                        CornerRadius="4"
+                                        VerticalAlignment="Center">
+                                    <TextBlock Text="♪"
+                                               FontSize="24"
+                                               Foreground="#e94560"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+
+                                <!-- Song Info -->
+                                <StackPanel Grid.Column="1"
+                                           Margin="15,0,15,0"
+                                           VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Title}"
+                                               FontSize="16"
+                                               FontWeight="SemiBold"
+                                               Foreground="White"
+                                               TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock FontSize="13"
+                                               Foreground="#94a3b8"
+                                               Margin="0,2,0,0">
+                                        <Run Text="{Binding Artist}"/>
+                                        <Run Text="•" Foreground="#64748b"/>
+                                        <Run Text="{Binding PlayCount, StringFormat={}{0} plays}"/>
+                                    </TextBlock>
+                                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                        <Border Background="#0f3460"
+                                                CornerRadius="4"
+                                                Padding="6,2"
+                                                Margin="0,0,5,0"
+                                                Visibility="{Binding HasBeatMap, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <TextBlock Text="Beat Map Ready"
+                                                       FontSize="10"
+                                                       Foreground="#22c55e"/>
+                                        </Border>
+                                        <Border Background="#1e293b"
+                                                CornerRadius="4"
+                                                Padding="6,2"
+                                                Visibility="{Binding HasBeatMap, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                            <TextBlock Text="No Beat Map"
+                                                       FontSize="10"
+                                                       Foreground="#94a3b8"/>
+                                        </Border>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <!-- Action Buttons -->
+                                <StackPanel Grid.Column="2"
+                                           Orientation="Horizontal"
+                                           VerticalAlignment="Center">
+                                    <!-- Play Button -->
+                                    <Button Command="{Binding DataContext.PlaySongCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            Content="▶ Play"
+                                            FontSize="13"
+                                            Padding="15,8"
+                                            Background="#e94560"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            Cursor="Hand"
+                                            Margin="0,0,8,0">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="{TemplateBinding Background}"
+                                                                    CornerRadius="6"
+                                                                    Padding="{TemplateBinding Padding}">
+                                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                                VerticalAlignment="Center"/>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#f76f8e"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+
+                                    <!-- Regenerate Button -->
+                                    <Button Command="{Binding DataContext.RegenerateBeatMapCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            Content="⟳"
+                                            FontSize="16"
+                                            Padding="10,8"
+                                            Background="#334155"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            Cursor="Hand"
+                                            Margin="0,0,8,0"
+                                            ToolTip="Regenerate Beat Map">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="{TemplateBinding Background}"
+                                                                    CornerRadius="6"
+                                                                    Padding="{TemplateBinding Padding}">
+                                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                                VerticalAlignment="Center"/>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#475569"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+
+                                    <!-- Remove Button -->
+                                    <Button Command="{Binding DataContext.RemoveSongCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            Content="✕"
+                                            FontSize="16"
+                                            Padding="10,8"
+                                            Background="#334155"
+                                            Foreground="#ef4444"
+                                            BorderThickness="0"
+                                            Cursor="Hand"
+                                            ToolTip="Remove from Library">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="Button">
+                                                            <Border Background="{TemplateBinding Background}"
+                                                                    CornerRadius="6"
+                                                                    Padding="{TemplateBinding Padding}">
+                                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                                VerticalAlignment="Center"/>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#ef4444"/>
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- Loading / Error Overlay -->
+        <Grid Grid.Row="1"
+              Background="#1a1a2edd"
+              Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="⟳"
+                           FontSize="48"
+                           Foreground="#e94560"
+                           HorizontalAlignment="Center"
+                           RenderTransformOrigin="0.5,0.5">
+                    <TextBlock.RenderTransform>
+                        <RotateTransform/>
+                    </TextBlock.RenderTransform>
+                    <TextBlock.Triggers>
+                        <EventTrigger RoutedEvent="Loaded">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetProperty="(TextBlock.RenderTransform).(RotateTransform.Angle)"
+                                                   From="0" To="360" Duration="0:0:2" RepeatBehavior="Forever"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </TextBlock.Triggers>
+                </TextBlock>
+                <TextBlock Text="{Binding LoadingMessage}"
+                           FontSize="16"
+                           Foreground="White"
+                           HorizontalAlignment="Center"
+                           Margin="0,20,0,0"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- Error Message -->
+        <Border Grid.Row="2"
+                Background="#7f1d1d"
+                Padding="20,15"
+                Visibility="{Binding ErrorMessage, Converter={StaticResource NullToVisibilityConverter}}">
+            <TextBlock Text="{Binding ErrorMessage}"
+                       FontSize="14"
+                       Foreground="White"
+                       TextWrapping="Wrap"/>
+        </Border>
+
+        <!-- Empty State -->
+        <StackPanel Grid.Row="1"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Visibility="{Binding Songs.Count, Converter={StaticResource ZeroToVisibilityConverter}}">
+            <TextBlock Text="♪"
+                       FontSize="72"
+                       Foreground="#334155"
+                       HorizontalAlignment="Center"/>
+            <TextBlock Text="Your library is empty"
+                       FontSize="24"
+                       FontWeight="SemiBold"
+                       Foreground="White"
+                       HorizontalAlignment="Center"
+                       Margin="0,20,0,10"/>
+            <TextBlock Text="Add your first song to get started!"
+                       FontSize="16"
+                       Foreground="#94a3b8"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,30"/>
+            <Button Command="{Binding AddMusicCommand}"
+                    Content="+ Add Music"
+                    FontSize="16"
+                    FontWeight="SemiBold"
+                    Padding="30,15"
+                    Background="#e94560"
+                    Foreground="White"
+                    BorderThickness="0"
+                    Cursor="Hand">
+                <Button.Style>
+                    <Style TargetType="Button">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}"
+                                            CornerRadius="8"
+                                            Padding="{TemplateBinding Padding}">
+                                        <ContentPresenter HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#f76f8e"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </StackPanel>
+    </Grid>
+</UserControl>

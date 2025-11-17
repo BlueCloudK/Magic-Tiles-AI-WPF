@@ -62,11 +62,14 @@ namespace BlueCloudK.WpfMusicTilesAI
             System.Diagnostics.Debug.WriteLine("============================");
 
             services.AddSingleton<IAudioService, AudioService>();
+            services.AddSingleton<IBeatMapCacheService, BeatMapCacheService>();
+            services.AddSingleton<IMusicLibraryService, MusicLibraryService>();
 
             // Register ViewModels
             services.AddTransient<MainViewModel>();
             services.AddTransient<StartViewModel>();
             services.AddTransient<GameViewModel>();
+            services.AddTransient<LibraryViewModel>();
 
             // Register Main Window
             services.AddSingleton<MainWindow>();
