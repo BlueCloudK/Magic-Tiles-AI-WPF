@@ -101,6 +101,14 @@ namespace BlueCloudK.WpfMusicTilesAI.Services
 
                 // Send request
                 var response = await _httpClient.SendAsync(request);
+
+                // Handle rate limiting (429) specifically
+                if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    throw new Exception("Gemini API rate limit exceeded. Please wait a few minutes before trying again. If you keep seeing this error, you may need to upgrade your API quota or wait longer between requests.");
+                }
+
                 response.EnsureSuccessStatusCode();
 
                 var responseJson = await response.Content.ReadAsStringAsync();

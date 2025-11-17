@@ -159,13 +159,13 @@
                             </Button>
 
                             <!-- Error Message -->
-                            <TextBlock Text="{Binding ErrorMessage}"
+                            <TextBlock Text="{Binding DataContext.ErrorMessage, RelativeSource={RelativeSource AncestorType=Window}}"
                                        FontSize="14"
                                        Foreground="#ef4444"
                                        TextWrapping="Wrap"
                                        HorizontalAlignment="Center"
                                        Margin="0,20,0,0"
-                                       Visibility="{Binding ErrorMessage, Converter={StaticResource NullToVisibilityConverter}}"/>
+                                       Visibility="{Binding DataContext.ErrorMessage, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource NullToVisibilityConverter}}"/>
 
                             <!-- Volume Control -->
                             <StackPanel Orientation="Horizontal"
@@ -175,12 +175,12 @@
                                           Foreground="White"
                                           VerticalAlignment="Center"
                                           Margin="0,0,10,0"/>
-                                <Slider Value="{Binding Volume}"
+                                <Slider Value="{Binding DataContext.Volume, RelativeSource={RelativeSource AncestorType=Window}}"
                                        Minimum="0"
                                        Maximum="1"
                                        Width="200"
                                        VerticalAlignment="Center"/>
-                                <TextBlock Text="{Binding Volume, StringFormat={}{0:P0}}"
+                                <TextBlock Text="{Binding DataContext.Volume, RelativeSource={RelativeSource AncestorType=Window}, StringFormat={}{0:P0}}"
                                           Foreground="White"
                                           VerticalAlignment="Center"
                                           Margin="10,0,0,0"
