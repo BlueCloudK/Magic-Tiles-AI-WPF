@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BlueCloudK.WpfMusicTilesAI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f4243f338ed8ad7ad8a2d42eb20c3f9cf4352847")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f9b1d4644210ea6cb394265d12caaab822b09885")]
 [assembly: System.Reflection.AssemblyProductAttribute("BlueCloudK.WpfMusicTilesAI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BlueCloudK.WpfMusicTilesAI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

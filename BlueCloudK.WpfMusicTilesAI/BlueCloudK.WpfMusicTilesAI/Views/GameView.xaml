@@ -1,0 +1,156 @@
+<UserControl x:Class="BlueCloudK.WpfMusicTilesAI.Views.GameView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:BlueCloudK.WpfMusicTilesAI.Views"
+             mc:Ignorable="d"
+             d:DesignHeight="600" d:DesignWidth="800"
+             Focusable="True"
+             KeyDown="UserControl_KeyDown">
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#0f0f23" Offset="0"/>
+                <GradientStop Color="#1a1a2e" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <!-- Game Area -->
+        <Canvas x:Name="GameCanvas" Width="400" Height="600">
+            <!-- 4 Lanes -->
+            <Rectangle Canvas.Left="0" Canvas.Top="0" Width="100" Height="600" Stroke="#2d3748" StrokeThickness="2" Fill="#1a202c" Opacity="0.3"/>
+            <Rectangle Canvas.Left="100" Canvas.Top="0" Width="100" Height="600" Stroke="#2d3748" StrokeThickness="2" Fill="#1a202c" Opacity="0.3"/>
+            <Rectangle Canvas.Left="200" Canvas.Top="0" Width="100" Height="600" Stroke="#2d3748" StrokeThickness="2" Fill="#1a202c" Opacity="0.3"/>
+            <Rectangle Canvas.Left="300" Canvas.Top="0" Width="100" Height="600" Stroke="#2d3748" StrokeThickness="2" Fill="#1a202c" Opacity="0.3"/>
+
+            <!-- Hit Zone Line -->
+            <Rectangle Canvas.Left="0" Canvas.Top="500" Width="400" Height="5" Fill="#e94560" Opacity="0.8"/>
+
+            <!-- Notes -->
+            <ItemsControl ItemsSource="{Binding ActiveNotes}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <Canvas/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Rectangle Width="90" Height="30" Fill="#00d9ff" Stroke="#0099cc" StrokeThickness="2">
+                            <Rectangle.RenderTransform>
+                                <TranslateTransform X="{Binding LaneX}" Y="{Binding Y}"/>
+                            </Rectangle.RenderTransform>
+                            <Rectangle.Style>
+                                <Style TargetType="Rectangle">
+                                    <Setter Property="Canvas.Left">
+                                        <Setter.Value>
+                                            <MultiBinding Converter="{StaticResource LaneToXConverter}">
+                                                <Binding Path="Lane"/>
+                                            </MultiBinding>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Setter Property="Canvas.Top" Value="{Binding Y}"/>
+                                </Style>
+                            </Rectangle.Style>
+                        </Rectangle>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Canvas>
+
+        <!-- HUD -->
+        <StackPanel VerticalAlignment="Top" HorizontalAlignment="Right" Margin="20">
+            <TextBlock Text="{Binding Song.Title}" FontSize="20" FontWeight="Bold" Foreground="White"/>
+            <TextBlock FontSize="16" Foreground="White" Margin="0,10,0,0">
+                <Run Text="Score: "/>
+                <Run Text="{Binding Score}" FontWeight="Bold"/>
+            </TextBlock>
+            <TextBlock FontSize="16" Foreground="White" Margin="0,5,0,0">
+                <Run Text="Combo: "/>
+                <Run Text="{Binding Combo}" FontWeight="Bold" Foreground="#00d9ff"/>
+            </TextBlock>
+            <TextBlock FontSize="14" Foreground="#64748b" Margin="0,5,0,0">
+                <Run Text="Max Combo: "/>
+                <Run Text="{Binding MaxCombo}"/>
+            </TextBlock>
+        </StackPanel>
+
+        <!-- Controls hint -->
+        <TextBlock Text="Press D, F, J, K to play"
+                   FontSize="14"
+                   Foreground="#64748b"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Bottom"
+                   Margin="0,0,0,20"/>
+
+        <!-- Pause Button -->
+        <Button Command="{Binding TogglePauseCommand}"
+                Content="⏸ Pause"
+                FontSize="14"
+                Padding="15,8"
+                Background="#2d3748"
+                Foreground="White"
+                BorderThickness="0"
+                Cursor="Hand"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Bottom"
+                Margin="20,0,0,20">
+            <Button.Style>
+                <Style TargetType="Button">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}"
+                                        CornerRadius="6"
+                                        Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#4a5568"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+        </Button>
+
+        <!-- End Game Button -->
+        <Button Command="{Binding EndGameCommand}"
+                Content="Exit"
+                FontSize="14"
+                Padding="15,8"
+                Background="#e94560"
+                Foreground="White"
+                BorderThickness="0"
+                Cursor="Hand"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Bottom"
+                Margin="120,0,0,20">
+            <Button.Style>
+                <Style TargetType="Button">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}"
+                                        CornerRadius="6"
+                                        Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#f76f8e"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+        </Button>
+    </Grid>
+</UserControl>
