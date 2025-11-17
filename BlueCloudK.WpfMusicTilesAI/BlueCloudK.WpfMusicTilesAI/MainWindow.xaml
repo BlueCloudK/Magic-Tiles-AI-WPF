@@ -145,6 +145,6 @@
 
         <!-- Game Screen -->
         <views:GameView x:Name="GameView"
-                       Visibility="{Binding CurrentState, Converter={StaticResource GameStateToVisibilityConverter}, ConverterParameter=Playing}"/>
+                       Visibility="{Binding DataContext.CurrentState, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource GameStateToVisibilityConverter}, ConverterParameter=Playing}"/>
     </Grid>
 </Window>

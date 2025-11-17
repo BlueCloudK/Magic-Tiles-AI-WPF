@@ -17,7 +17,8 @@
         </Grid.Background>
 
         <!-- Game Area -->
-        <Canvas x:Name="GameCanvas" Width="400" Height="600">
+        <Canvas x:Name="GameCanvas" Width="400" Height="600"
+                HorizontalAlignment="Center" VerticalAlignment="Center">
             <!-- 4 Lanes -->
             <Rectangle Canvas.Left="0" Canvas.Top="0" Width="100" Height="600" Stroke="#2d3748" StrokeThickness="2" Fill="#1a202c" Opacity="0.3"/>
             <Rectangle Canvas.Left="100" Canvas.Top="0" Width="100" Height="600" Stroke="#2d3748" StrokeThickness="2" Fill="#1a202c" Opacity="0.3"/>
