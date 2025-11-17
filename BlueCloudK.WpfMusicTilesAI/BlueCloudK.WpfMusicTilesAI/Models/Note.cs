@@ -1,9 +1,11 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+
 namespace BlueCloudK.WpfMusicTilesAI.Models
 {
     /// <summary>
     /// Represents a single note/tile in the game
     /// </summary>
-    public class Note
+    public partial class Note : ObservableObject
     {
         /// <summary>
         /// The exact second when the note should be hit
@@ -29,12 +31,14 @@ namespace BlueCloudK.WpfMusicTilesAI.Models
         /// <summary>
         /// Current state of the note during gameplay
         /// </summary>
-        public NoteState State { get; set; } = NoteState.Active;
+        [ObservableProperty]
+        private NoteState _state = NoteState.Active;
 
         /// <summary>
         /// Y position of the note on screen (updated during game loop)
         /// </summary>
-        public double Y { get; set; }
+        [ObservableProperty]
+        private double _y;
 
         /// <summary>
         /// Time when the note was successfully hit
@@ -44,7 +48,8 @@ namespace BlueCloudK.WpfMusicTilesAI.Models
         /// <summary>
         /// Progress of holding a long note (0 to 1)
         /// </summary>
-        public double HoldProgress { get; set; }
+        [ObservableProperty]
+        private double _holdProgress;
     }
 
     /// <summary>
