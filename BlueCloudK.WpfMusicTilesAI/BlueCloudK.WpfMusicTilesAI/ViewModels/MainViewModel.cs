@@ -52,10 +52,16 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
             _geminiService = geminiService;
             _authService = authService;
 
+            // DEBUG: Log startup state
+            System.Diagnostics.Debug.WriteLine($"=== MainViewModel Constructor ===");
+            System.Diagnostics.Debug.WriteLine($"AuthService is null: {_authService == null}");
+            System.Diagnostics.Debug.WriteLine($"AuthService is authenticated: {_authService?.IsAuthenticated ?? false}");
+
             // Determine which screen to show
             if (_authService == null)
             {
                 // No OAuth configured - show setup instructions
+                System.Diagnostics.Debug.WriteLine("Showing Setup Instructions (OAuth not configured)");
                 ShowSetupInstructions = true;
                 ShowLogin = false;
                 ShowStartView = false;
@@ -63,6 +69,7 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
             else if (!_authService.IsAuthenticated)
             {
                 // OAuth configured but not authenticated - show login
+                System.Diagnostics.Debug.WriteLine("Showing Login (OAuth configured, not authenticated)");
                 ShowLogin = true;
                 ShowStartView = false;
                 ShowSetupInstructions = false;
@@ -70,10 +77,16 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
             else
             {
                 // Authenticated - show start view
+                System.Diagnostics.Debug.WriteLine("Showing StartView (authenticated)");
                 ShowLogin = false;
                 ShowStartView = CurrentState == GameState.Start;
                 ShowSetupInstructions = false;
             }
+
+            System.Diagnostics.Debug.WriteLine($"ShowSetupInstructions: {ShowSetupInstructions}");
+            System.Diagnostics.Debug.WriteLine($"ShowLogin: {ShowLogin}");
+            System.Diagnostics.Debug.WriteLine($"ShowStartView: {ShowStartView}");
+            System.Diagnostics.Debug.WriteLine("=================================");
         }
 
         /// <summary>

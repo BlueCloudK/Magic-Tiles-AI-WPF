@@ -40,6 +40,11 @@ namespace BlueCloudK.WpfMusicTilesAI
             var clientSecret = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_SECRET")
                               ?? ConfigurationManager.AppSettings["GOOGLE_CLIENT_SECRET"];
 
+            // DEBUG: Log OAuth configuration
+            System.Diagnostics.Debug.WriteLine($"=== App ConfigureServices ===");
+            System.Diagnostics.Debug.WriteLine($"Client ID from config: '{clientId ?? "NULL"}'");
+            System.Diagnostics.Debug.WriteLine($"Client Secret from config: '{(string.IsNullOrEmpty(clientSecret) ? "NULL/EMPTY" : "***SET***")}'");
+
             // Register services
             // OAuth is now required for Gemini API
             // Check if credentials are configured (not placeholders)
@@ -48,8 +53,11 @@ namespace BlueCloudK.WpfMusicTilesAI
                 && !clientId.Contains("YOUR_")
                 && !clientSecret.Contains("YOUR_");
 
+            System.Diagnostics.Debug.WriteLine($"Has valid OAuth credentials: {hasValidOAuthCredentials}");
+
             if (hasValidOAuthCredentials)
             {
+                System.Diagnostics.Debug.WriteLine("Registering GoogleAuthService and GeminiService");
                 services.AddSingleton<IGoogleAuthService>(sp => new GoogleAuthService(clientId!, clientSecret!));
 
                 // Register Gemini service using OAuth authentication
@@ -62,6 +70,11 @@ namespace BlueCloudK.WpfMusicTilesAI
                 // Register LoginViewModel only when OAuth is configured
                 services.AddTransient<LoginViewModel>();
             }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("OAuth not configured - services not registered");
+            }
+            System.Diagnostics.Debug.WriteLine("============================");
 
             services.AddSingleton<IAudioService, AudioService>();
 
