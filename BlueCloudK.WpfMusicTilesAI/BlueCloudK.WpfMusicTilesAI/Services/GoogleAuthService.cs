@@ -19,9 +19,9 @@ namespace BlueCloudK.WpfMusicTilesAI.Services
         private UserCredential? _credential;
 
         // Required scopes for Generative AI
+        // Using basic scopes - the main Generative Language API scope
         private static readonly string[] Scopes = {
-            "https://www.googleapis.com/auth/generative-language.retriever",
-            "https://www.googleapis.com/auth/generative-language.tuning",
+            "https://www.googleapis.com/auth/generative-language",
             "openid",
             "profile",
             "email"
