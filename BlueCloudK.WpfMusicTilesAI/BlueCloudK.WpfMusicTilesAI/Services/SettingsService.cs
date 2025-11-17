@@ -29,7 +29,32 @@ namespace BlueCloudK.WpfMusicTilesAI.Services
         }
 
         /// <summary>
-        /// Loads settings from disk
+        /// Loads settings from disk (synchronous version for startup)
+        /// </summary>
+        public void LoadSettings()
+        {
+            try
+            {
+                if (File.Exists(_settingsPath))
+                {
+                    var json = File.ReadAllText(_settingsPath);
+                    var loadedSettings = JsonConvert.DeserializeObject<AppSettings>(json);
+
+                    if (loadedSettings != null)
+                    {
+                        _settings = loadedSettings;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to load settings: {ex.Message}");
+                // If loading fails, keep default settings
+            }
+        }
+
+        /// <summary>
+        /// Loads settings from disk (async version)
         /// </summary>
         public async Task LoadSettingsAsync()
         {
@@ -37,7 +62,7 @@ namespace BlueCloudK.WpfMusicTilesAI.Services
             {
                 if (File.Exists(_settingsPath))
                 {
-                    var json = await File.ReadAllTextAsync(_settingsPath);
+                    var json = await File.ReadAllTextAsync(_settingsPath).ConfigureAwait(false);
                     var loadedSettings = JsonConvert.DeserializeObject<AppSettings>(json);
 
                     if (loadedSettings != null)

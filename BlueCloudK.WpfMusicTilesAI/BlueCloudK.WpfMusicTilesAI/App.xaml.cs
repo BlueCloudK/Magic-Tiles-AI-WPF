@@ -96,9 +96,11 @@ namespace BlueCloudK.WpfMusicTilesAI
             services.AddSingleton<IAudioAnalysisService, AudioAnalysisService>();
 
             // Settings Service
+            System.Diagnostics.Debug.WriteLine("Loading settings...");
             var settingsService = new SettingsService();
-            settingsService.LoadSettingsAsync().Wait(); // Load settings on startup
+            settingsService.LoadSettings(); // Load settings synchronously on startup
             services.AddSingleton<ISettingsService>(settingsService);
+            System.Diagnostics.Debug.WriteLine("Settings loaded successfully");
 
             // Register ViewModels
             services.AddTransient<MainViewModel>();

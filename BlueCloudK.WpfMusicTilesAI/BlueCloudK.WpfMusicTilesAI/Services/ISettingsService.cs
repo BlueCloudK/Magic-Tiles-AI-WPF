@@ -14,7 +14,12 @@ namespace BlueCloudK.WpfMusicTilesAI.Services
         AppSettings Settings { get; }
 
         /// <summary>
-        /// Loads settings from disk
+        /// Loads settings from disk (synchronous)
+        /// </summary>
+        void LoadSettings();
+
+        /// <summary>
+        /// Loads settings from disk (async)
         /// </summary>
         Task LoadSettingsAsync();
 
