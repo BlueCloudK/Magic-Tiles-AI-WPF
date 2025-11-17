@@ -80,3 +80,4 @@ artifacts/
 !**/[Pp]ackages/build/
 *.nuget.props
 *.nuget.targets
+/BlueCloudK.WpfMusicTilesAI/BlueCloudK.WpfMusicTilesAI/App.config
