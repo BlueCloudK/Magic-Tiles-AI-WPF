@@ -64,6 +64,7 @@ namespace BlueCloudK.WpfMusicTilesAI
             services.AddSingleton<IAudioService, AudioService>();
             services.AddSingleton<IBeatMapCacheService, BeatMapCacheService>();
             services.AddSingleton<IMusicLibraryService, MusicLibraryService>();
+            services.AddSingleton<IAudioAnalysisService, AudioAnalysisService>();
 
             // Register ViewModels
             services.AddTransient<MainViewModel>();

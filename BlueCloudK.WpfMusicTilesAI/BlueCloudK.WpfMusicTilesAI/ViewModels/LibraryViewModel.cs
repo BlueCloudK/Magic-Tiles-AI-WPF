@@ -19,6 +19,7 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
         private readonly IMusicLibraryService _libraryService;
         private readonly IBeatMapCacheService _beatMapCache;
         private readonly IGeminiService? _geminiService;
+        private readonly IAudioAnalysisService? _audioAnalysisService;
 
         [ObservableProperty]
         private ObservableCollection<LocalSong> _songs = new();
@@ -35,16 +36,28 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
         [ObservableProperty]
         private string? _errorMessage;
 
+        [ObservableProperty]
+        private bool _useAudioAnalysis = true; // Default to audio analysis if available
+
         public event Action<LocalSong>? OnPlaySong;
 
         public LibraryViewModel(
             IMusicLibraryService libraryService,
             IBeatMapCacheService beatMapCache,
-            IGeminiService? geminiService = null)
+            IGeminiService? geminiService = null,
+            IAudioAnalysisService? audioAnalysisService = null)
         {
             _libraryService = libraryService ?? throw new ArgumentNullException(nameof(libraryService));
             _beatMapCache = beatMapCache ?? throw new ArgumentNullException(nameof(beatMapCache));
             _geminiService = geminiService;
+            _audioAnalysisService = audioAnalysisService;
+
+            // Check if audio analysis is available
+            if (_audioAnalysisService != null && !_audioAnalysisService.IsAvailable())
+            {
+                _audioAnalysisService = null;
+                UseAudioAnalysis = false;
+            }
         }
 
         /// <summary>
@@ -135,19 +148,47 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
                 // Check if beat map exists
                 if (!song.HasBeatMap)
                 {
-                    // Need to generate beat map first
-                    if (_geminiService == null)
+                    IsLoading = true;
+                    BeatMap beatMap;
+
+                    // Try audio analysis first if available and enabled
+                    if (UseAudioAnalysis && _audioAnalysisService != null)
                     {
-                        ErrorMessage = "Cannot generate beat map: Gemini API key not configured";
+                        try
+                        {
+                            LoadingMessage = $"Analyzing audio: {song.Title}...";
+                            beatMap = await _audioAnalysisService.AnalyzeAudioAsync(song.FilePath, song.Title);
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Audio analysis failed: {ex.Message}");
+
+                            // Fallback to AI generation if available
+                            if (_geminiService != null)
+                            {
+                                LoadingMessage = $"Audio analysis failed, using AI generation...";
+                                var description = $"A song titled {song.Title} by {song.Artist}";
+                                beatMap = await _geminiService.GenerateBeatMapAsync(description);
+                            }
+                            else
+                            {
+                                ErrorMessage = $"Audio analysis failed and AI generation not available: {ex.Message}";
+                                return;
+                            }
+                        }
+                    }
+                    else if (_geminiService != null)
+                    {
+                        // Use AI generation
+                        LoadingMessage = $"Generating beat map for {song.Title}...";
+                        var description = $"A song titled {song.Title} by {song.Artist}";
+                        beatMap = await _geminiService.GenerateBeatMapAsync(description);
+                    }
+                    else
+                    {
+                        ErrorMessage = "Cannot generate beat map: No analysis method available";
                         return;
                     }
-
-                    IsLoading = true;
-                    LoadingMessage = $"Generating beat map for {song.Title}...";
-
-                    // Generate beat map
-                    var description = $"A song titled {song.Title} by {song.Artist}";
-                    var beatMap = await _geminiService.GenerateBeatMapAsync(description);
 
                     // Save to cache
                     var beatMapPath = await _beatMapCache.SaveBeatMapAsync(song.Id, beatMap);
@@ -156,7 +197,7 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
 
                     await _libraryService.UpdateSongAsync(song);
 
-                    LoadingMessage = "Beat map generated! Starting game...";
+                    LoadingMessage = "Beat map created! Starting game...";
                     await Task.Delay(500);
                 }
 
@@ -193,19 +234,48 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
 
             try
             {
-                if (_geminiService == null)
+                IsLoading = true;
+                ErrorMessage = null;
+                BeatMap beatMap;
+
+                // Use audio analysis if available and enabled
+                if (UseAudioAnalysis && _audioAnalysisService != null)
                 {
-                    ErrorMessage = "Cannot regenerate beat map: Gemini API key not configured";
+                    try
+                    {
+                        LoadingMessage = $"Analyzing audio: {song.Title}...";
+                        beatMap = await _audioAnalysisService.AnalyzeAudioAsync(song.FilePath, song.Title);
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Audio analysis failed: {ex.Message}");
+
+                        // Fallback to AI generation if available
+                        if (_geminiService != null)
+                        {
+                            LoadingMessage = $"Audio analysis failed, using AI generation...";
+                            var description = $"A song titled {song.Title} by {song.Artist}";
+                            beatMap = await _geminiService.GenerateBeatMapAsync(description);
+                        }
+                        else
+                        {
+                            ErrorMessage = $"Audio analysis failed and AI generation not available: {ex.Message}";
+                            return;
+                        }
+                    }
+                }
+                else if (_geminiService != null)
+                {
+                    // Use AI generation
+                    LoadingMessage = $"Regenerating beat map for {song.Title}...";
+                    var description = $"A song titled {song.Title} by {song.Artist}";
+                    beatMap = await _geminiService.GenerateBeatMapAsync(description);
+                }
+                else
+                {
+                    ErrorMessage = "Cannot regenerate beat map: No analysis method available";
                     return;
                 }
-
-                IsLoading = true;
-                LoadingMessage = $"Regenerating beat map for {song.Title}...";
-                ErrorMessage = null;
-
-                // Generate new beat map
-                var description = $"A song titled {song.Title} by {song.Artist}";
-                var beatMap = await _geminiService.GenerateBeatMapAsync(description);
 
                 // Save to cache (overwrites existing)
                 var beatMapPath = await _beatMapCache.SaveBeatMapAsync(song.Id, beatMap);
