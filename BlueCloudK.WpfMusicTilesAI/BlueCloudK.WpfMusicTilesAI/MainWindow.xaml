@@ -103,11 +103,11 @@
 
         <!-- Login Screen (shows first if OAuth is configured and not authenticated) -->
         <views:LoginView x:Name="LoginView"
-                        Visibility="{Binding ShowLogin, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        Visibility="{Binding DataContext.ShowLogin, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
         <!-- Start Screen (only shows when not showing login AND in Start state) -->
         <views:StartView x:Name="StartView"
-                        Visibility="{Binding ShowStartView, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        Visibility="{Binding DataContext.ShowStartView, RelativeSource={RelativeSource AncestorType=Window}, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
         <!-- Loading Screen -->
         <Grid x:Name="LoadingScreen"
