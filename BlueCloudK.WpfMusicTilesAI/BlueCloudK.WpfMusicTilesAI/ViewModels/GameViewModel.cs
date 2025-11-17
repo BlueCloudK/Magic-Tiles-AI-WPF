@@ -62,6 +62,10 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
             BeatMap = beatMap ?? throw new ArgumentNullException(nameof(beatMap));
             Song = song ?? throw new ArgumentNullException(nameof(song));
 
+            System.Diagnostics.Debug.WriteLine($"=== GameViewModel Initialize ===");
+            System.Diagnostics.Debug.WriteLine($"BeatMap has {beatMap.Notes.Count} total notes");
+            System.Diagnostics.Debug.WriteLine($"Song: {song.Title}");
+
             Score = 0;
             Combo = 0;
             MaxCombo = 0;
@@ -71,11 +75,17 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
             // Load and play audio file
             if (!string.IsNullOrEmpty(song.Url) && System.IO.File.Exists(song.Url))
             {
+                System.Diagnostics.Debug.WriteLine($"Loading audio from: {song.Url}");
                 _audioService.Load(song.Url);
                 _audioService.Play();
             }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("No audio file to play");
+            }
 
             // Start game
+            System.Diagnostics.Debug.WriteLine("Starting game timer...");
             _gameTimer.Start();
         }
 
@@ -110,10 +120,16 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
                            (n.Time - CurrentTime) <= 2.0) // Spawn 2 seconds before hit time
                 .ToList();
 
+            if (notesToSpawn.Count > 0)
+            {
+                System.Diagnostics.Debug.WriteLine($"[{CurrentTime:F2}s] Spawning {notesToSpawn.Count} notes");
+            }
+
             foreach (var note in notesToSpawn)
             {
                 note.Y = -100; // Start above screen
                 ActiveNotes.Add(note);
+                System.Diagnostics.Debug.WriteLine($"  Note spawned at lane {note.Lane}, time {note.Time:F2}s, Y={note.Y}");
             }
         }
 
@@ -124,7 +140,14 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
             foreach (var note in ActiveNotes)
             {
                 // Update Y position
+                var oldY = note.Y;
                 note.Y += FALL_SPEED * 0.016;
+
+                // Log first few updates to verify
+                if (oldY < 0 && note.Y >= 0)
+                {
+                    System.Diagnostics.Debug.WriteLine($"  Note lane {note.Lane} entered screen at Y={note.Y:F1}");
+                }
 
                 // Check if note passed hit zone (missed)
                 if (note.Y > HIT_ZONE_Y + 100 && note.State == NoteState.Active)
@@ -132,6 +155,7 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
                     note.State = NoteState.Missed;
                     Combo = 0;
                     notesToRemove.Add(note);
+                    System.Diagnostics.Debug.WriteLine($"  Note lane {note.Lane} MISSED at Y={note.Y:F1}");
                 }
                 else if (note.State == NoteState.Hit || note.State == NoteState.Missed)
                 {
@@ -142,6 +166,11 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
             foreach (var note in notesToRemove)
             {
                 ActiveNotes.Remove(note);
+            }
+
+            if (ActiveNotes.Count > 0 && CurrentTime % 1.0 < 0.02) // Log every second
+            {
+                System.Diagnostics.Debug.WriteLine($"[{CurrentTime:F2}s] {ActiveNotes.Count} active notes on screen");
             }
         }
 
