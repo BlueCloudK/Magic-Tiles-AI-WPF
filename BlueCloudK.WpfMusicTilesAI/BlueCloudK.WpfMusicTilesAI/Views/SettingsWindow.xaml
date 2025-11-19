@@ -395,7 +395,6 @@
 
                 <!-- Save Button -->
                 <Button Grid.Column="2"
-                        Command="{Binding SaveCommand}"
                         Click="SaveButton_Click"
                         Content="Save"
                         FontSize="14"

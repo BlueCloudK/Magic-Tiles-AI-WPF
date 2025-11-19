@@ -1,12 +1,28 @@
 using System;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace BlueCloudK.WpfMusicTilesAI.Models
 {
     /// <summary>
     /// Represents a song imported from local file system
     /// </summary>
-    public class LocalSong : Song
+    public partial class LocalSong : ObservableObject
     {
+        /// <summary>
+        /// Unique identifier
+        /// </summary>
+        public string Id { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Song title
+        /// </summary>
+        public string Title { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Artist name
+        /// </summary>
+        public string Artist { get; set; } = string.Empty;
+
         /// <summary>
         /// Full path to the audio file on disk
         /// </summary>
@@ -25,12 +41,14 @@ namespace BlueCloudK.WpfMusicTilesAI.Models
         /// <summary>
         /// Whether a beat map has been generated for this song
         /// </summary>
-        public bool HasBeatMap { get; set; }
+        [ObservableProperty]
+        private bool _hasBeatMap;
 
         /// <summary>
         /// Path to the cached beat map JSON file
         /// </summary>
-        public string? BeatMapPath { get; set; }
+        [ObservableProperty]
+        private string? _beatMapPath;
 
         /// <summary>
         /// Duration of the audio file in seconds (if available)

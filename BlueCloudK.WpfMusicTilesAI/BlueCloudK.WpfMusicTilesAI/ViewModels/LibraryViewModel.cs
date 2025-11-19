@@ -204,12 +204,7 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
                 // Record play
                 await _libraryService.RecordPlayAsync(song.Id);
 
-                // Update the song in the collection
-                var index = Songs.IndexOf(song);
-                if (index >= 0)
-                {
-                    Songs[index] = song;
-                }
+                // Note: No need to manually update Songs collection since LocalSong is now ObservableObject
 
                 // Notify to start game
                 OnPlaySong?.Invoke(song);
@@ -284,12 +279,7 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
 
                 await _libraryService.UpdateSongAsync(song);
 
-                // Update the song in the collection
-                var index = Songs.IndexOf(song);
-                if (index >= 0)
-                {
-                    Songs[index] = song;
-                }
+                // Note: No need to manually update Songs collection since LocalSong is now ObservableObject
 
                 LoadingMessage = "Beat map regenerated successfully!";
                 await Task.Delay(1000);
