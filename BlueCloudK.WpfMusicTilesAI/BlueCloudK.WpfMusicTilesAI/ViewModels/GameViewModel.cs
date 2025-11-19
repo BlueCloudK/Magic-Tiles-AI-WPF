@@ -53,6 +53,21 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
         [ObservableProperty]
         private double _currentTime;
 
+        [ObservableProperty]
+        private int _totalNotes;
+
+        [ObservableProperty]
+        private int _notesHit;
+
+        [ObservableProperty]
+        private int _notesMissed;
+
+        [ObservableProperty]
+        private double _accuracy;
+
+        [ObservableProperty]
+        private bool _isGameEnded;
+
         private double _previousTime = 0;
 
         public event Action? OnGameEnd;
@@ -94,6 +109,13 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
             _progressiveSpeedMultiplier = 1.0;
             ActiveNotes.Clear();
             HitFeedbacks.Clear();
+
+            // Initialize statistics
+            TotalNotes = beatMap.Notes.Count;
+            NotesHit = 0;
+            NotesMissed = 0;
+            Accuracy = 0;
+            IsGameEnded = false;
 
             // Load and play audio file
             if (!string.IsNullOrEmpty(song.Url) && System.IO.File.Exists(song.Url))
@@ -256,6 +278,8 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
                 {
                     note.State = NoteState.Missed;
                     Combo = 0;
+                    NotesMissed++;
+                    UpdateAccuracy();
                     notesToRemove.Add(note);
                     System.Diagnostics.Debug.WriteLine($"  Note lane {note.Lane} MISSED at Y={note.Y:F1}");
 
@@ -323,6 +347,10 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
                 if (Combo > MaxCombo)
                     MaxCombo = Combo;
 
+                // Update statistics
+                NotesHit++;
+                UpdateAccuracy();
+
                 // Show hit feedback
                 ShowHitFeedback(lane, feedbackText, feedbackColor);
 
@@ -346,6 +374,18 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
         {
             var feedback = new HitFeedback(lane, text, color);
             HitFeedbacks.Add(feedback);
+        }
+
+        /// <summary>
+        /// Updates accuracy percentage
+        /// </summary>
+        private void UpdateAccuracy()
+        {
+            int totalPlayed = NotesHit + NotesMissed;
+            if (totalPlayed > 0)
+            {
+                Accuracy = (double)NotesHit / totalPlayed * 100.0;
+            }
         }
 
         /// <summary>
@@ -399,8 +439,12 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
                 System.Diagnostics.Debug.WriteLine("Stopping audio...");
                 _audioService?.Stop();
 
-                System.Diagnostics.Debug.WriteLine("Invoking OnGameEnd event...");
-                OnGameEnd?.Invoke();
+                // Calculate final accuracy
+                UpdateAccuracy();
+
+                // Show end screen
+                IsGameEnded = true;
+                System.Diagnostics.Debug.WriteLine($"Game ended - Score: {Score}, Accuracy: {Accuracy:F2}%, Hits: {NotesHit}/{TotalNotes}");
 
                 System.Diagnostics.Debug.WriteLine("EndGame completed successfully");
             }
@@ -408,6 +452,13 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
             {
                 System.Diagnostics.Debug.WriteLine($"Error in EndGame: {ex}");
             }
+        }
+
+        [RelayCommand]
+        private void BackToMenu()
+        {
+            // Trigger navigation back to start screen
+            OnGameEnd?.Invoke();
         }
 
         public void Dispose()
