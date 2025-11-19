@@ -94,7 +94,8 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
             if (IsPaused || BeatMap == null)
                 return;
 
-            CurrentTime += 0.016; // 16ms per frame
+            // Sync game time with actual audio position for perfect rhythm timing
+            CurrentTime = _audioService.CurrentPosition;
 
             // Spawn notes that should appear on screen
             SpawnNotes();

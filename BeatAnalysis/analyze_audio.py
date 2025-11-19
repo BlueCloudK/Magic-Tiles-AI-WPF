@@ -55,27 +55,27 @@ def create_beat_map(analysis, audio_path, title="Unknown"):
     """Create beat map in the format expected by Magic Tiles AI"""
 
     notes = []
-    lanes = [0, 1, 2, 3]  # 4 lanes
+    lanes = [1, 2, 3, 4]  # 4 lanes (1-indexed to match C# game logic: D=1, F=2, J=3, K=4)
 
     # Create notes from detected beats
     for i, time in enumerate(analysis['onset_times']):
         lane = lanes[i % len(lanes)]  # Distribute across lanes
         note = {
-            "Time": float(time),
-            "Lane": lane,
-            "Duration": 0.0  # Regular tap note
+            "time": float(time),
+            "lane": lane,
+            "duration": None  # None for tap notes (matches C# null)
         }
         notes.append(note)
 
     beat_map = {
-        "Metadata": {
-            "Title": title,
-            "Artist": "Auto-detected",
-            "Difficulty": analysis['difficulty'],
-            "Duration": analysis['duration'],
-            "BPM": analysis['tempo']
+        "metadata": {
+            "title": title,
+            "artist": "Auto-detected",
+            "difficulty": analysis['difficulty'],
+            "duration": analysis['duration'],
+            "bpm": int(analysis['tempo'])
         },
-        "Notes": notes
+        "notes": notes
     }
 
     return beat_map
