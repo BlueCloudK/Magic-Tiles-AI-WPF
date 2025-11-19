@@ -54,5 +54,11 @@ namespace BlueCloudK.WpfMusicTilesAI.Models
         /// Highest score achieved for this song
         /// </summary>
         public int HighScore { get; set; }
+
+        /// <summary>
+        /// Selected difficulty for beat map generation
+        /// </summary>
+        [ObservableProperty]
+        private Difficulty _selectedDifficulty = Difficulty.Normal;
     }
 }

@@ -156,8 +156,8 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
                     {
                         try
                         {
-                            LoadingMessage = $"Analyzing audio: {song.Title}...";
-                            beatMap = await _audioAnalysisService.AnalyzeAudioAsync(song.FilePath, song.Title);
+                            LoadingMessage = $"Analyzing audio ({song.SelectedDifficulty}): {song.Title}...";
+                            beatMap = await _audioAnalysisService.AnalyzeAudioAsync(song.FilePath, song.Title, song.SelectedDifficulty);
                         }
                         catch (Exception ex)
                         {
@@ -238,8 +238,8 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
                 {
                     try
                     {
-                        LoadingMessage = $"Analyzing audio: {song.Title}...";
-                        beatMap = await _audioAnalysisService.AnalyzeAudioAsync(song.FilePath, song.Title);
+                        LoadingMessage = $"Analyzing audio ({song.SelectedDifficulty}): {song.Title}...";
+                        beatMap = await _audioAnalysisService.AnalyzeAudioAsync(song.FilePath, song.Title, song.SelectedDifficulty);
                     }
                     catch (Exception ex)
                     {

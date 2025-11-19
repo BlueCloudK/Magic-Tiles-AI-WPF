@@ -29,7 +29,7 @@ namespace BlueCloudK.WpfMusicTilesAI.Services
         /// <summary>
         /// Analyzes an audio file and generates a beat map automatically
         /// </summary>
-        public async Task<BeatMap> AnalyzeAudioAsync(string audioFilePath, string songTitle)
+        public async Task<BeatMap> AnalyzeAudioAsync(string audioFilePath, string songTitle, Difficulty difficulty = Difficulty.Normal)
         {
             if (!File.Exists(audioFilePath))
                 throw new FileNotFoundException("Audio file not found", audioFilePath);
@@ -45,11 +45,11 @@ namespace BlueCloudK.WpfMusicTilesAI.Services
 
             try
             {
-                // Run Python script
+                // Run Python script with difficulty parameter
                 var processInfo = new ProcessStartInfo
                 {
                     FileName = _pythonExecutable,
-                    Arguments = $"\"{_pythonScriptPath}\" \"{audioFilePath}\" \"{tempOutputPath}\" \"{songTitle}\"",
+                    Arguments = $"\"{_pythonScriptPath}\" \"{audioFilePath}\" \"{tempOutputPath}\" \"{songTitle}\" \"{difficulty}\"",
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,

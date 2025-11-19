@@ -51,14 +51,28 @@ def analyze_audio(audio_path):
         "beat_count": len(beat_times)
     }
 
-def create_beat_map(analysis, audio_path, title="Unknown"):
+def create_beat_map(analysis, audio_path, title="Unknown", difficulty="Normal"):
     """Create beat map in the format expected by Magic Tiles AI"""
 
     notes = []
     lanes = [1, 2, 3, 4]  # 4 lanes (1-indexed to match C# game logic: D=1, F=2, J=3, K=4)
 
-    # Create notes from detected beats
-    for i, time in enumerate(analysis['onset_times']):
+    # Select which times to use based on difficulty
+    onset_times = analysis['onset_times']
+    beat_times = analysis['beat_times']
+
+    if difficulty == "Easy":
+        # Use only beat times (less dense)
+        times_to_use = beat_times
+    elif difficulty == "Hard":
+        # Combine both beat and onset times for maximum density
+        times_to_use = sorted(list(set(list(beat_times) + list(onset_times))))
+    else:  # Normal
+        # Use onset times (moderate density)
+        times_to_use = onset_times
+
+    # Create notes from selected times
+    for i, time in enumerate(times_to_use):
         lane = lanes[i % len(lanes)]  # Distribute across lanes
         note = {
             "Time": float(time),
@@ -71,7 +85,7 @@ def create_beat_map(analysis, audio_path, title="Unknown"):
         "Metadata": {
             "Title": title,
             "Artist": "Auto-detected",
-            "Difficulty": analysis['difficulty'],
+            "Difficulty": difficulty,
             "Duration": analysis['duration'],
             "Bpm": int(analysis['tempo'])
         },
@@ -82,12 +96,13 @@ def create_beat_map(analysis, audio_path, title="Unknown"):
 
 def main():
     if len(sys.argv) < 3:
-        print("Usage: python analyze_audio.py <audio_file> <output_json>")
+        print("Usage: python analyze_audio.py <audio_file> <output_json> [title] [difficulty]")
         sys.exit(1)
 
     audio_path = sys.argv[1]
     output_path = sys.argv[2]
     title = sys.argv[3] if len(sys.argv) > 3 else "Unknown"
+    difficulty = sys.argv[4] if len(sys.argv) > 4 else "Normal"
 
     try:
         print(f"Analyzing: {audio_path}")
@@ -96,9 +111,9 @@ def main():
         print(f"Tempo: {analysis['tempo']:.2f} BPM")
         print(f"Duration: {analysis['duration']:.2f} seconds")
         print(f"Beats detected: {analysis['beat_count']}")
-        print(f"Difficulty: {analysis['difficulty']}")
+        print(f"Selected difficulty: {difficulty}")
 
-        beat_map = create_beat_map(analysis, audio_path, title)
+        beat_map = create_beat_map(analysis, audio_path, title, difficulty)
 
         with open(output_path, 'w', encoding='utf-8') as f:
             json.dump(beat_map, f, indent=2, ensure_ascii=False)

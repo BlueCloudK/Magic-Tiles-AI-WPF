@@ -138,6 +138,10 @@
                             </Border.Style>
 
                             <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="60"/>
                                     <ColumnDefinition Width="*"/>
@@ -145,7 +149,8 @@
                                 </Grid.ColumnDefinitions>
 
                                 <!-- Album Art Placeholder -->
-                                <Border Grid.Column="0"
+                                <Border Grid.Row="0"
+                                        Grid.Column="0"
                                         Width="50"
                                         Height="50"
                                         Background="#0f3460"
@@ -159,7 +164,8 @@
                                 </Border>
 
                                 <!-- Song Info -->
-                                <StackPanel Grid.Column="1"
+                                <StackPanel Grid.Row="0"
+                                           Grid.Column="1"
                                            Margin="15,0,15,0"
                                            VerticalAlignment="Center">
                                     <TextBlock Text="{Binding Title}"
@@ -196,7 +202,8 @@
                                 </StackPanel>
 
                                 <!-- Action Buttons -->
-                                <StackPanel Grid.Column="2"
+                                <StackPanel Grid.Row="0"
+                                           Grid.Column="2"
                                            Orientation="Horizontal"
                                            VerticalAlignment="Center">
                                     <!-- Play Button -->
@@ -302,6 +309,133 @@
                                             </Style>
                                         </Button.Style>
                                     </Button>
+                                </StackPanel>
+
+                                <!-- Difficulty Selection -->
+                                <StackPanel Grid.Row="1"
+                                           Grid.Column="0"
+                                           Grid.ColumnSpan="3"
+                                           Orientation="Horizontal"
+                                           HorizontalAlignment="Left"
+                                           Margin="15,10,0,0">
+                                    <TextBlock Text="Độ khó:"
+                                               FontSize="12"
+                                               Foreground="#94a3b8"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,10,0"/>
+
+                                    <!-- Easy Button -->
+                                    <RadioButton GroupName="{Binding Id}"
+                                                Content="Easy"
+                                                IsChecked="{Binding SelectedDifficulty, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Easy}"
+                                                FontSize="11"
+                                                Foreground="White"
+                                                Margin="0,0,5,0">
+                                        <RadioButton.Style>
+                                            <Style TargetType="RadioButton">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="RadioButton">
+                                                            <Border Background="{TemplateBinding Background}"
+                                                                    CornerRadius="4"
+                                                                    Padding="12,6"
+                                                                    BorderThickness="1"
+                                                                    BorderBrush="#22c55e">
+                                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                                VerticalAlignment="Center"/>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Setter Property="Background" Value="Transparent"/>
+                                                <Setter Property="Cursor" Value="Hand"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsChecked" Value="True">
+                                                        <Setter Property="Background" Value="#22c55e"/>
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#22c55e33"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </RadioButton.Style>
+                                    </RadioButton>
+
+                                    <!-- Normal Button -->
+                                    <RadioButton GroupName="{Binding Id}"
+                                                Content="Normal"
+                                                IsChecked="{Binding SelectedDifficulty, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Normal}"
+                                                FontSize="11"
+                                                Foreground="White"
+                                                Margin="0,0,5,0">
+                                        <RadioButton.Style>
+                                            <Style TargetType="RadioButton">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="RadioButton">
+                                                            <Border Background="{TemplateBinding Background}"
+                                                                    CornerRadius="4"
+                                                                    Padding="12,6"
+                                                                    BorderThickness="1"
+                                                                    BorderBrush="#3b82f6">
+                                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                                VerticalAlignment="Center"/>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Setter Property="Background" Value="Transparent"/>
+                                                <Setter Property="Cursor" Value="Hand"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsChecked" Value="True">
+                                                        <Setter Property="Background" Value="#3b82f6"/>
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#3b82f633"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </RadioButton.Style>
+                                    </RadioButton>
+
+                                    <!-- Hard Button -->
+                                    <RadioButton GroupName="{Binding Id}"
+                                                Content="Hard"
+                                                IsChecked="{Binding SelectedDifficulty, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Hard}"
+                                                FontSize="11"
+                                                Foreground="White">
+                                        <RadioButton.Style>
+                                            <Style TargetType="RadioButton">
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="RadioButton">
+                                                            <Border Background="{TemplateBinding Background}"
+                                                                    CornerRadius="4"
+                                                                    Padding="12,6"
+                                                                    BorderThickness="1"
+                                                                    BorderBrush="#ef4444">
+                                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                                VerticalAlignment="Center"/>
+                                                            </Border>
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Setter Property="Background" Value="Transparent"/>
+                                                <Setter Property="Cursor" Value="Hand"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsChecked" Value="True">
+                                                        <Setter Property="Background" Value="#ef4444"/>
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter Property="Background" Value="#ef444433"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </RadioButton.Style>
+                                    </RadioButton>
                                 </StackPanel>
                             </Grid>
                         </Border>
