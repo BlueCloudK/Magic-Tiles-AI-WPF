@@ -61,21 +61,21 @@ def create_beat_map(analysis, audio_path, title="Unknown"):
     for i, time in enumerate(analysis['onset_times']):
         lane = lanes[i % len(lanes)]  # Distribute across lanes
         note = {
-            "time": float(time),
-            "lane": lane,
-            "duration": None  # None for tap notes (matches C# null)
+            "Time": float(time),
+            "Lane": lane,
+            "Duration": None  # None for tap notes (matches C# nullable double?)
         }
         notes.append(note)
 
     beat_map = {
-        "metadata": {
-            "title": title,
-            "artist": "Auto-detected",
-            "difficulty": analysis['difficulty'],
-            "duration": analysis['duration'],
-            "bpm": int(analysis['tempo'])
+        "Metadata": {
+            "Title": title,
+            "Artist": "Auto-detected",
+            "Difficulty": analysis['difficulty'],
+            "Duration": analysis['duration'],
+            "Bpm": int(analysis['tempo'])
         },
-        "notes": notes
+        "Notes": notes
     }
 
     return beat_map
@@ -100,10 +100,12 @@ def main():
 
         beat_map = create_beat_map(analysis, audio_path, title)
 
-        with open(output_path, 'w') as f:
-            json.dump(beat_map, f, indent=2)
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(beat_map, f, indent=2, ensure_ascii=False)
+            f.flush()  # Ensure all data is written to disk
 
         print(f"Beat map saved to: {output_path}")
+        print(f"Total notes generated: {len(beat_map['Notes'])}")
 
     except Exception as e:
         print(f"Error: {str(e)}", file=sys.stderr)
