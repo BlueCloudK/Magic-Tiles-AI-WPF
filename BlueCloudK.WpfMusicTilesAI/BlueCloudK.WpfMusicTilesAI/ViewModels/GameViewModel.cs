@@ -17,8 +17,11 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
         private readonly IAudioService _audioService;
         private readonly ISettingsService _settingsService;
         private readonly DispatcherTimer _gameTimer;
-        private double _fallSpeed = 300; // pixels per second (adjusted by speed setting)
+        private double _fallSpeed = 300; // pixels per second (adjusted by speed setting and progression)
+        private double _progressiveSpeedMultiplier = 1.0; // increases over time for difficulty
         private const double BASE_FALL_SPEED = 300; // base pixels per second
+        private const double SPEED_INCREASE_RATE = 0.02; // 2% increase per 10 seconds
+        private const double MAX_SPEED_MULTIPLIER = 2.5; // max 2.5x speed
         private const double HIT_ZONE_Y = 500; // Y position of hit zone
         private const double HIT_TOLERANCE = 50; // pixels tolerance for hitting notes
         private const double SPAWN_AHEAD_TIME = 2.0; // seconds to spawn notes before hit time
@@ -86,6 +89,7 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
             CurrentTime = 0;
             _previousTime = 0;
             _frameCount = 0;
+            _progressiveSpeedMultiplier = 1.0;
             ActiveNotes.Clear();
 
             // Load and play audio file
@@ -115,9 +119,9 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
         {
             var settings = _settingsService.Settings;
 
-            // Apply speed multiplier to fall speed
-            _fallSpeed = BASE_FALL_SPEED * settings.Speed;
-            System.Diagnostics.Debug.WriteLine($"Applied settings: Speed={settings.Speed}x, FallSpeed={_fallSpeed}px/s");
+            // Apply speed multiplier to fall speed (settings.Speed * progressive multiplier)
+            _fallSpeed = BASE_FALL_SPEED * settings.Speed * _progressiveSpeedMultiplier;
+            System.Diagnostics.Debug.WriteLine($"Applied settings: Speed={settings.Speed}x, Progressive={_progressiveSpeedMultiplier:F2}x, FallSpeed={_fallSpeed}px/s");
 
             // Apply volume to audio service
             _audioService.Volume = settings.Volume;
@@ -152,6 +156,14 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
 
             _previousTime = newTime;
             CurrentTime = newTime;
+
+            // Progressive speed increase every 10 seconds (Magic Tiles difficulty)
+            if (_frameCount % 600 == 0 && _progressiveSpeedMultiplier < MAX_SPEED_MULTIPLIER)
+            {
+                _progressiveSpeedMultiplier = Math.Min(_progressiveSpeedMultiplier + SPEED_INCREASE_RATE, MAX_SPEED_MULTIPLIER);
+                ApplySettings(); // Recalculate fall speed with new multiplier
+                System.Diagnostics.Debug.WriteLine($"SPEED INCREASED! Multiplier: {_progressiveSpeedMultiplier:F2}x, FallSpeed: {_fallSpeed:F1}px/s");
+            }
 
             // Debug every 60 frames (1 second at 60fps)
             if (_frameCount % 60 == 0)
@@ -229,13 +241,17 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
                     System.Diagnostics.Debug.WriteLine($"  Note lane {note.Lane} entered screen at Y={note.Y:F1} (deltaTime={deltaTime:F3}s)");
                 }
 
-                // Check if note passed hit zone (missed)
+                // Check if note passed hit zone (missed) - GAME OVER in Magic Tiles!
                 if (note.Y > HIT_ZONE_Y + 100 && note.State == NoteState.Active)
                 {
                     note.State = NoteState.Missed;
                     Combo = 0;
                     notesToRemove.Add(note);
-                    System.Diagnostics.Debug.WriteLine($"  Note lane {note.Lane} MISSED at Y={note.Y:F1}");
+                    System.Diagnostics.Debug.WriteLine($"  Note lane {note.Lane} MISSED at Y={note.Y:F1} - GAME OVER!");
+
+                    // Magic Tiles rule: Missing a tile ends the game
+                    EndGame();
+                    return;
                 }
                 else if (note.State == NoteState.Hit || note.State == NoteState.Missed)
                 {
@@ -279,6 +295,14 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
 
                 if (Combo > MaxCombo)
                     MaxCombo = Combo;
+
+                System.Diagnostics.Debug.WriteLine($"HIT! Lane {lane}, Accuracy: {accuracy:P0}, Score: +{points * (Combo / 10 + 1)}");
+            }
+            else
+            {
+                // Magic Tiles rule: Tapping empty lane or tile too far = GAME OVER
+                System.Diagnostics.Debug.WriteLine($"WRONG TAP! Lane {lane}, No tile in hit zone - GAME OVER!");
+                EndGame();
             }
         }
 
