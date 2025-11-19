@@ -36,6 +36,9 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
         private ObservableCollection<Note> _activeNotes = new();
 
         [ObservableProperty]
+        private ObservableCollection<HitFeedback> _hitFeedbacks = new();
+
+        [ObservableProperty]
         private int _score;
 
         [ObservableProperty]
@@ -90,6 +93,7 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
             _frameCount = 0;
             _progressiveSpeedMultiplier = 1.0;
             ActiveNotes.Clear();
+            HitFeedbacks.Clear();
 
             // Load and play audio file
             if (!string.IsNullOrEmpty(song.Url) && System.IO.File.Exists(song.Url))
@@ -183,6 +187,9 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
             // Update positions of active notes with actual delta time
             UpdateNotes(deltaTime);
 
+            // Update hit feedback animations
+            UpdateHitFeedbacks(deltaTime);
+
             // Check if game is finished
             if (CurrentTime >= (BeatMap.Metadata.Duration + 3))
             {
@@ -244,17 +251,16 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
                     System.Diagnostics.Debug.WriteLine($"  Note lane {note.Lane} entered screen at Y={note.Y:F1} (deltaTime={deltaTime:F3}s)");
                 }
 
-                // Check if note passed hit zone (missed) - GAME OVER in Magic Tiles!
+                // Check if note passed hit zone (missed)
                 if (note.Y > HIT_ZONE_Y + 100 && note.State == NoteState.Active)
                 {
                     note.State = NoteState.Missed;
                     Combo = 0;
                     notesToRemove.Add(note);
-                    System.Diagnostics.Debug.WriteLine($"  Note lane {note.Lane} MISSED at Y={note.Y:F1} - GAME OVER!");
+                    System.Diagnostics.Debug.WriteLine($"  Note lane {note.Lane} MISSED at Y={note.Y:F1}");
 
-                    // Magic Tiles rule: Missing a tile ends the game
-                    EndGame();
-                    return;
+                    // Show miss feedback
+                    ShowHitFeedback(note.Lane, "MISS", "#ff4444");
                 }
                 else if (note.State == NoteState.Hit || note.State == NoteState.Missed)
                 {
@@ -291,13 +297,34 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
                 // Update score and combo
                 int points = 100;
                 double accuracy = 1 - (Math.Abs(note.Y - HIT_ZONE_Y) / HIT_TOLERANCE);
-                if (accuracy > 0.9) points = 150; // Perfect hit
+                string feedbackText;
+                string feedbackColor;
+
+                if (accuracy > 0.9)
+                {
+                    points = 150; // Perfect hit
+                    feedbackText = "PERFECT!";
+                    feedbackColor = "#00ff00";
+                }
+                else if (accuracy > 0.7)
+                {
+                    feedbackText = "GOOD";
+                    feedbackColor = "#ffff00";
+                }
+                else
+                {
+                    feedbackText = "OK";
+                    feedbackColor = "#ff9900";
+                }
 
                 Score += points * (Combo / 10 + 1); // Combo multiplier
                 Combo++;
 
                 if (Combo > MaxCombo)
                     MaxCombo = Combo;
+
+                // Show hit feedback
+                ShowHitFeedback(lane, feedbackText, feedbackColor);
 
                 System.Diagnostics.Debug.WriteLine($"HIT! Lane {lane}, Accuracy: {accuracy:P0}, Score: +{points * (Combo / 10 + 1)}");
             }
@@ -309,6 +336,42 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
                     System.Diagnostics.Debug.WriteLine($"WRONG TAP! Lane {lane}, No tile in hit zone - Combo broken!");
                     Combo = 0;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Shows visual feedback at the hit zone
+        /// </summary>
+        private void ShowHitFeedback(int lane, string text, string color)
+        {
+            var feedback = new HitFeedback(lane, text, color);
+            HitFeedbacks.Add(feedback);
+        }
+
+        /// <summary>
+        /// Updates hit feedback animations (fade out and move up)
+        /// </summary>
+        private void UpdateHitFeedbacks(double deltaTime)
+        {
+            var feedbacksToRemove = new System.Collections.Generic.List<HitFeedback>();
+
+            foreach (var feedback in HitFeedbacks)
+            {
+                // Fade out over 0.8 seconds
+                feedback.Opacity -= deltaTime / 0.8;
+
+                // Move up slowly
+                feedback.Y -= 50 * deltaTime;
+
+                if (feedback.Opacity <= 0)
+                {
+                    feedbacksToRemove.Add(feedback);
+                }
+            }
+
+            foreach (var feedback in feedbacksToRemove)
+            {
+                HitFeedbacks.Remove(feedback);
             }
         }
 
