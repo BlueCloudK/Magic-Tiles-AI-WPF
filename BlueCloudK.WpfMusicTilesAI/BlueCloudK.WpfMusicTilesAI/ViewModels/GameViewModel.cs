@@ -16,6 +16,7 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
     {
         private readonly IAudioService _audioService;
         private readonly ISettingsService _settingsService;
+        private readonly IMusicLibraryService _musicLibraryService;
         private readonly DispatcherTimer _gameTimer;
         private double _fallSpeed = 300; // pixels per second (adjusted by speed setting and progression)
         private double _progressiveSpeedMultiplier = 1.0; // increases over time for difficulty
@@ -71,14 +72,21 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
         [ObservableProperty]
         private bool _isPauseMenuVisible;
 
+        [ObservableProperty]
+        private int _previousHighScore;
+
+        [ObservableProperty]
+        private bool _isNewRecord;
+
         private double _previousTime = 0;
 
         public event Action? OnGameEnd;
 
-        public GameViewModel(IAudioService audioService, ISettingsService settingsService)
+        public GameViewModel(IAudioService audioService, ISettingsService settingsService, IMusicLibraryService musicLibraryService)
         {
             _audioService = audioService ?? throw new ArgumentNullException(nameof(audioService));
             _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
+            _musicLibraryService = musicLibraryService ?? throw new ArgumentNullException(nameof(musicLibraryService));
 
             _gameTimer = new DispatcherTimer
             {
@@ -120,6 +128,17 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
             Accuracy = 0;
             IsGameEnded = false;
             IsPauseMenuVisible = false;
+
+            // Initialize high score tracking
+            if (song is LocalSong localSong)
+            {
+                PreviousHighScore = localSong.HighScore;
+            }
+            else
+            {
+                PreviousHighScore = 0;
+            }
+            IsNewRecord = false;
 
             // Load and play audio file
             if (!string.IsNullOrEmpty(song.Url) && System.IO.File.Exists(song.Url))
@@ -452,6 +471,37 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
 
                 // Calculate final accuracy
                 UpdateAccuracy();
+
+                // Check and update high score
+                if (Score > PreviousHighScore)
+                {
+                    IsNewRecord = true;
+
+                    // Update high score in song model
+                    if (Song is LocalSong localSong)
+                    {
+                        localSong.HighScore = Score;
+                        localSong.LastPlayed = DateTime.Now;
+                        localSong.PlayCount++;
+
+                        // Save to library
+                        _ = _musicLibraryService.SaveLibraryAsync();
+
+                        System.Diagnostics.Debug.WriteLine($"🎉 NEW RECORD! Previous: {PreviousHighScore}, New: {Score}");
+                    }
+                }
+                else
+                {
+                    IsNewRecord = false;
+
+                    // Still update play stats even if not a new record
+                    if (Song is LocalSong localSong)
+                    {
+                        localSong.LastPlayed = DateTime.Now;
+                        localSong.PlayCount++;
+                        _ = _musicLibraryService.SaveLibraryAsync();
+                    }
+                }
 
                 // Show end screen
                 IsGameEnded = true;

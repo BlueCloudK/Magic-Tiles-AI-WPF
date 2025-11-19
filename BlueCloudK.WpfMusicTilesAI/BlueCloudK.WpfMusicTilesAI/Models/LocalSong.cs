@@ -49,5 +49,10 @@ namespace BlueCloudK.WpfMusicTilesAI.Models
         /// Number of times this song has been played
         /// </summary>
         public int PlayCount { get; set; }
+
+        /// <summary>
+        /// Highest score achieved for this song
+        /// </summary>
+        public int HighScore { get; set; }
     }
 }

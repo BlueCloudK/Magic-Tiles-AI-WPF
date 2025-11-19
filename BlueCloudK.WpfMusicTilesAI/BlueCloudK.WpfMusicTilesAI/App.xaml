@@ -22,6 +22,8 @@
                                                    xmlns:local="clr-namespace:BlueCloudK.WpfMusicTilesAI.Helpers"/>
             <local:ZeroToVisibilityConverter x:Key="ZeroToVisibilityConverter"
                                             xmlns:local="clr-namespace:BlueCloudK.WpfMusicTilesAI.Helpers"/>
+            <local:NonZeroToVisibilityConverter x:Key="NonZeroToVisibilityConverter"
+                                               xmlns:local="clr-namespace:BlueCloudK.WpfMusicTilesAI.Helpers"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

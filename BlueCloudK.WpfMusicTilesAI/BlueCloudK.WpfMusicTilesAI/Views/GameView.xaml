@@ -293,7 +293,7 @@
                     <!-- Score -->
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Center"
-                                Margin="0,0,0,20">
+                                Margin="0,0,0,10">
                         <TextBlock Text="⭐ Điểm: "
                                    FontSize="28"
                                    Foreground="#fbbf24"/>
@@ -302,6 +302,32 @@
                                    FontWeight="Bold"
                                    Foreground="#fbbf24"/>
                     </StackPanel>
+
+                    <!-- New Record Badge -->
+                    <Border Background="#10b981"
+                            CornerRadius="15"
+                            Padding="15,5"
+                            HorizontalAlignment="Center"
+                            Margin="0,0,0,10"
+                            Visibility="{Binding IsNewRecord, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TextBlock Text="🎉 KỶ LỤC MỚI!"
+                                   FontSize="16"
+                                   FontWeight="Bold"
+                                   Foreground="White"/>
+                    </Border>
+
+                    <!-- Previous High Score -->
+                    <TextBlock HorizontalAlignment="Center"
+                               Margin="0,0,0,20"
+                               Visibility="{Binding PreviousHighScore, Converter={StaticResource NonZeroToVisibilityConverter}}">
+                        <Run Text="🏆 Kỷ lục trước: "
+                             FontSize="14"
+                             Foreground="#64748b"/>
+                        <Run Text="{Binding PreviousHighScore}"
+                             FontSize="14"
+                             FontWeight="SemiBold"
+                             Foreground="#94a3b8"/>
+                    </TextBlock>
 
                     <!-- Statistics Grid -->
                     <Grid Margin="0,20,0,30">
