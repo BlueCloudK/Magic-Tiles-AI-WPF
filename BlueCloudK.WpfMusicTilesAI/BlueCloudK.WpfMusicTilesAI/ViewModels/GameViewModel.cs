@@ -15,8 +15,10 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
     public partial class GameViewModel : ObservableObject, IDisposable
     {
         private readonly IAudioService _audioService;
+        private readonly ISettingsService _settingsService;
         private readonly DispatcherTimer _gameTimer;
-        private const double FALL_SPEED = 300; // pixels per second
+        private double _fallSpeed = 300; // pixels per second (adjusted by speed setting)
+        private const double BASE_FALL_SPEED = 300; // base pixels per second
         private const double HIT_ZONE_Y = 500; // Y position of hit zone
         private const double HIT_TOLERANCE = 50; // pixels tolerance for hitting notes
         private const double SPAWN_AHEAD_TIME = 2.0; // seconds to spawn notes before hit time
@@ -49,15 +51,19 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
 
         public event Action? OnGameEnd;
 
-        public GameViewModel(IAudioService audioService)
+        public GameViewModel(IAudioService audioService, ISettingsService settingsService)
         {
             _audioService = audioService ?? throw new ArgumentNullException(nameof(audioService));
+            _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
 
             _gameTimer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromMilliseconds(16) // ~60 FPS
             };
             _gameTimer.Tick += GameLoop;
+
+            // Apply initial settings
+            ApplySettings();
         }
 
         public void Initialize(BeatMap beatMap, Song song)
@@ -100,6 +106,24 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
             System.Diagnostics.Debug.WriteLine("Starting game timer...");
             _gameTimer.Start();
             System.Diagnostics.Debug.WriteLine("=== GameViewModel Initialize COMPLETE ===");
+        }
+
+        /// <summary>
+        /// Applies current settings from SettingsService
+        /// </summary>
+        public void ApplySettings()
+        {
+            var settings = _settingsService.Settings;
+
+            // Apply speed multiplier to fall speed
+            _fallSpeed = BASE_FALL_SPEED * settings.Speed;
+            System.Diagnostics.Debug.WriteLine($"Applied settings: Speed={settings.Speed}x, FallSpeed={_fallSpeed}px/s");
+
+            // Apply volume to audio service
+            _audioService.Volume = settings.Volume;
+            System.Diagnostics.Debug.WriteLine($"Applied volume: {settings.Volume}");
+
+            // Note: Theme and effects would be applied through UI bindings or property changes
         }
 
         private int _frameCount = 0;
@@ -179,8 +203,8 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
                 {
                     // Calculate initial Y based on time remaining until hit
                     double timeUntilHit = note.Time - CurrentTime;
-                    // Note should travel at FALL_SPEED to reach HIT_ZONE_Y exactly at note.Time
-                    double distanceToTravel = timeUntilHit * FALL_SPEED;
+                    // Note should travel at _fallSpeed to reach HIT_ZONE_Y exactly at note.Time
+                    double distanceToTravel = timeUntilHit * _fallSpeed;
                     note.Y = HIT_ZONE_Y - distanceToTravel;
 
                     ActiveNotes.Add(note);
@@ -197,7 +221,7 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
             {
                 // Update Y position using actual delta time
                 var oldY = note.Y;
-                note.Y += FALL_SPEED * deltaTime;
+                note.Y += _fallSpeed * deltaTime;
 
                 // Log first few updates to verify
                 if (oldY < 0 && note.Y >= 0)

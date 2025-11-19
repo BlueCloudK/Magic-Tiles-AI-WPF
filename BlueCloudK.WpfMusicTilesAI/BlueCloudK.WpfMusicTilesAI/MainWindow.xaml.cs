@@ -52,9 +52,12 @@ namespace BlueCloudK.WpfMusicTilesAI
                 if (_mainViewModel.CurrentState == Models.GameState.Playing && _mainViewModel.CurrentBeatMap != null)
                 {
                     System.Diagnostics.Debug.WriteLine("Creating GameViewModel...");
+                    var app = (App)Application.Current;
                     var gameViewModel = new GameViewModel(
-                        ((App)Application.Current).Services.GetService(typeof(Services.IAudioService)) as Services.IAudioService
-                            ?? throw new System.Exception("AudioService not found"));
+                        app.Services.GetService(typeof(Services.IAudioService)) as Services.IAudioService
+                            ?? throw new System.Exception("AudioService not found"),
+                        app.Services.GetService(typeof(Services.ISettingsService)) as Services.ISettingsService
+                            ?? throw new System.Exception("SettingsService not found"));
 
                     gameViewModel.Initialize(_mainViewModel.CurrentBeatMap, _mainViewModel.CurrentSong!);
                     gameViewModel.OnGameEnd += () =>
@@ -128,7 +131,9 @@ namespace BlueCloudK.WpfMusicTilesAI
                 System.Diagnostics.Debug.WriteLine("Creating GameViewModel...");
                 var gameViewModel = new GameViewModel(
                     app.Services.GetService(typeof(Services.IAudioService)) as Services.IAudioService
-                        ?? throw new System.Exception("AudioService not found"));
+                        ?? throw new System.Exception("AudioService not found"),
+                    app.Services.GetService(typeof(Services.ISettingsService)) as Services.ISettingsService
+                        ?? throw new System.Exception("SettingsService not found"));
 
                 System.Diagnostics.Debug.WriteLine("Calling GameViewModel.Initialize...");
                 gameViewModel.Initialize(beatMap, song);
