@@ -67,12 +67,18 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
             System.Diagnostics.Debug.WriteLine($"=== GameViewModel Initialize ===");
             System.Diagnostics.Debug.WriteLine($"BeatMap has {beatMap.Notes.Count} total notes");
             System.Diagnostics.Debug.WriteLine($"Song: {song.Title}");
+            System.Diagnostics.Debug.WriteLine($"First 5 notes:");
+            foreach (var note in beatMap.Notes.Take(5))
+            {
+                System.Diagnostics.Debug.WriteLine($"  Time={note.Time:F2}s, Lane={note.Lane}, State={note.State}");
+            }
 
             Score = 0;
             Combo = 0;
             MaxCombo = 0;
             CurrentTime = 0;
             _previousTime = 0;
+            _frameCount = 0;
             ActiveNotes.Clear();
 
             // Load and play audio file
@@ -80,22 +86,29 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
             {
                 System.Diagnostics.Debug.WriteLine($"Loading audio from: {song.Url}");
                 _audioService.Load(song.Url);
+                System.Diagnostics.Debug.WriteLine($"Audio duration: {_audioService.TotalDuration:F2}s");
                 _audioService.Play();
+                System.Diagnostics.Debug.WriteLine($"Audio IsPlaying: {_audioService.IsPlaying}");
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("No audio file to play");
+                System.Diagnostics.Debug.WriteLine($"WARNING: No audio file! Url={song.Url}, Exists={System.IO.File.Exists(song.Url ?? "")}");
             }
 
             // Start game
             System.Diagnostics.Debug.WriteLine("Starting game timer...");
             _gameTimer.Start();
+            System.Diagnostics.Debug.WriteLine("=== GameViewModel Initialize COMPLETE ===");
         }
+
+        private int _frameCount = 0;
 
         private void GameLoop(object? sender, EventArgs e)
         {
             if (IsPaused || BeatMap == null)
                 return;
+
+            _frameCount++;
 
             // Sync game time with actual audio position for perfect rhythm timing
             double newTime = _audioService.CurrentPosition;
@@ -107,6 +120,15 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
 
             _previousTime = newTime;
             CurrentTime = newTime;
+
+            // Debug every 60 frames (1 second at 60fps)
+            if (_frameCount % 60 == 0)
+            {
+                System.Diagnostics.Debug.WriteLine($"=== Frame {_frameCount} ===");
+                System.Diagnostics.Debug.WriteLine($"CurrentTime: {CurrentTime:F3}s, deltaTime: {deltaTime:F4}s");
+                System.Diagnostics.Debug.WriteLine($"ActiveNotes: {ActiveNotes.Count}, Total notes in beatmap: {BeatMap.Notes.Count}");
+                System.Diagnostics.Debug.WriteLine($"Audio playing: {_audioService.IsPlaying}");
+            }
 
             // Spawn notes that should appear on screen
             SpawnNotes();
@@ -124,24 +146,33 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
         private void SpawnNotes()
         {
             if (BeatMap == null)
+            {
+                System.Diagnostics.Debug.WriteLine("SpawnNotes: BeatMap is NULL!");
                 return;
+            }
 
-            var notesToSpawn = BeatMap.Notes
-                .Where(n => n.State == NoteState.Active &&
-                           !ActiveNotes.Contains(n) &&
-                           (n.Time - CurrentTime) <= 2.0) // Spawn 2 seconds before hit time
-                .ToList();
+            // Check candidate notes
+            var activeNotes = BeatMap.Notes.Where(n => n.State == NoteState.Active).ToList();
+            var notAlreadySpawned = activeNotes.Where(n => !ActiveNotes.Contains(n)).ToList();
+            var withinSpawnWindow = notAlreadySpawned.Where(n => (n.Time - CurrentTime) <= 2.0).ToList();
+
+            if (_frameCount % 60 == 0 && notAlreadySpawned.Any())
+            {
+                var nextNote = notAlreadySpawned.OrderBy(n => n.Time).First();
+                System.Diagnostics.Debug.WriteLine($"Next note to spawn: Time={nextNote.Time:F2}s, Lane={nextNote.Lane}, TimeUntilSpawn={(nextNote.Time - CurrentTime - 2.0):F2}s");
+            }
+
+            var notesToSpawn = withinSpawnWindow;
 
             if (notesToSpawn.Count > 0)
             {
                 System.Diagnostics.Debug.WriteLine($"[{CurrentTime:F2}s] Spawning {notesToSpawn.Count} notes");
-            }
-
-            foreach (var note in notesToSpawn)
-            {
-                note.Y = -100; // Start above screen
-                ActiveNotes.Add(note);
-                System.Diagnostics.Debug.WriteLine($"  Note spawned at lane {note.Lane}, time {note.Time:F2}s, Y={note.Y}");
+                foreach (var note in notesToSpawn)
+                {
+                    note.Y = -100; // Start above screen
+                    ActiveNotes.Add(note);
+                    System.Diagnostics.Debug.WriteLine($"  Note spawned at lane {note.Lane}, time {note.Time:F2}s, Y={note.Y}");
+                }
             }
         }
 
