@@ -96,13 +96,21 @@ namespace BlueCloudK.WpfMusicTilesAI.Services
                 {
                     beatMap = JsonConvert.DeserializeObject<BeatMap>(json);
                 }
-                catch (JsonException ex)
+                catch (Exception ex)
                 {
                     // Save failed JSON to temp file for debugging
-                    var errorJsonPath = Path.Combine(Path.GetTempPath(), $"failed_beatmap_{DateTime.Now:yyyyMMdd_HHmmss}.json");
+                    var errorJsonPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"failed_beatmap_{DateTime.Now:yyyyMMdd_HHmmss}.json");
                     await File.WriteAllTextAsync(errorJsonPath, json);
                     System.Diagnostics.Debug.WriteLine($"Failed JSON saved to: {errorJsonPath}");
-                    throw new InvalidOperationException($"JSON deserialization failed at {ex.Path}: {ex.Message}\nJSON saved to: {errorJsonPath}", ex);
+
+                    // Try to extract path from JsonReaderException if available
+                    var pathInfo = "";
+                    if (ex is JsonReaderException jre)
+                    {
+                        pathInfo = $" at line {jre.LineNumber}, position {jre.LinePosition}, path '{jre.Path}'";
+                    }
+
+                    throw new InvalidOperationException($"JSON deserialization failed{pathInfo}: {ex.Message}\nJSON saved to: {errorJsonPath}", ex);
                 }
 
                 if (beatMap == null)
