@@ -68,6 +68,9 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
         [ObservableProperty]
         private bool _isGameEnded;
 
+        [ObservableProperty]
+        private bool _isPauseMenuVisible;
+
         private double _previousTime = 0;
 
         public event Action? OnGameEnd;
@@ -116,6 +119,7 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
             NotesMissed = 0;
             Accuracy = 0;
             IsGameEnded = false;
+            IsPauseMenuVisible = false;
 
             // Load and play audio file
             if (!string.IsNullOrEmpty(song.Url) && System.IO.File.Exists(song.Url))
@@ -416,14 +420,21 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
         }
 
         [RelayCommand]
-        private void TogglePause()
+        private void ShowPauseMenu()
         {
-            IsPaused = !IsPaused;
+            IsPaused = true;
+            IsPauseMenuVisible = true;
+            _audioService.Pause();
+            System.Diagnostics.Debug.WriteLine("Pause menu opened");
+        }
 
-            if (IsPaused)
-                _audioService.Pause();
-            else
-                _audioService.Play();
+        [RelayCommand]
+        private void HidePauseMenu()
+        {
+            IsPauseMenuVisible = false;
+            IsPaused = false;
+            _audioService.Play();
+            System.Diagnostics.Debug.WriteLine("Pause menu closed - resuming game");
         }
 
         [RelayCommand]

@@ -104,26 +104,29 @@
                    VerticalAlignment="Bottom"
                    Margin="0,0,0,20"/>
 
-        <!-- Pause Button -->
-        <Button Command="{Binding TogglePauseCommand}"
-                Content="⏸ Pause"
-                FontSize="14"
-                Padding="15,8"
+        <!-- Menu Button (≡) -->
+        <Button Command="{Binding ShowPauseMenuCommand}"
+                Content="≡"
+                FontSize="28"
+                FontWeight="Bold"
+                Width="50"
+                Height="50"
                 Background="#2d3748"
                 Foreground="White"
                 BorderThickness="0"
                 Cursor="Hand"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Bottom"
-                Margin="20,0,0,20">
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Margin="0,20,20,0">
             <Button.Style>
                 <Style TargetType="Button">
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="Button">
                                 <Border Background="{TemplateBinding Background}"
-                                        CornerRadius="6"
-                                        Padding="{TemplateBinding Padding}">
+                                        CornerRadius="8"
+                                        Width="{TemplateBinding Width}"
+                                        Height="{TemplateBinding Height}">
                                     <ContentPresenter HorizontalAlignment="Center"
                                                     VerticalAlignment="Center"/>
                                 </Border>
@@ -139,75 +142,127 @@
             </Button.Style>
         </Button>
 
-        <!-- Settings Button -->
-        <Button Click="SettingsButton_Click"
-                Content="⚙ Settings"
-                FontSize="14"
-                Padding="15,8"
-                Background="#2d3748"
-                Foreground="White"
-                BorderThickness="0"
-                Cursor="Hand"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Bottom"
-                Margin="120,0,0,20">
-            <Button.Style>
-                <Style TargetType="Button">
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="Button">
-                                <Border Background="{TemplateBinding Background}"
-                                        CornerRadius="6"
-                                        Padding="{TemplateBinding Padding}">
-                                    <ContentPresenter HorizontalAlignment="Center"
-                                                    VerticalAlignment="Center"/>
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                    <Style.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#4a5568"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </Button.Style>
-        </Button>
+        <!-- Pause Menu Overlay -->
+        <Border Background="#CC000000"
+                Visibility="{Binding IsPauseMenuVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Border Background="#1a1a2e"
+                    CornerRadius="20"
+                    Padding="40"
+                    MaxWidth="400"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+                <StackPanel>
+                    <!-- Title -->
+                    <TextBlock Text="⏸ Tạm dừng"
+                               FontSize="32"
+                               FontWeight="Bold"
+                               Foreground="#00d9ff"
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,40"/>
 
-        <!-- End Game Button -->
-        <Button Command="{Binding EndGameCommand}"
-                Content="Exit"
-                FontSize="14"
-                Padding="15,8"
-                Background="#e94560"
-                Foreground="White"
-                BorderThickness="0"
-                Cursor="Hand"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Bottom"
-                Margin="250,0,0,20">
-            <Button.Style>
-                <Style TargetType="Button">
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="Button">
-                                <Border Background="{TemplateBinding Background}"
-                                        CornerRadius="6"
-                                        Padding="{TemplateBinding Padding}">
-                                    <ContentPresenter HorizontalAlignment="Center"
-                                                    VerticalAlignment="Center"/>
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                    <Style.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#f76f8e"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </Button.Style>
-        </Button>
+                    <!-- Menu Buttons -->
+                    <StackPanel>
+                        <!-- Continue Button -->
+                        <Button Command="{Binding HidePauseMenuCommand}"
+                                Content="▶ Tiếp tục"
+                                FontSize="18"
+                                Padding="30,15"
+                                Background="#00d9ff"
+                                Foreground="White"
+                                BorderThickness="0"
+                                Cursor="Hand"
+                                Margin="0,0,0,15">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        CornerRadius="10"
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Center"
+                                                                    VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#00b8d4"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+
+                        <!-- Settings Button -->
+                        <Button Click="PauseMenuSettingsButton_Click"
+                                Content="⚙ Cài đặt"
+                                FontSize="18"
+                                Padding="30,15"
+                                Background="#2d3748"
+                                Foreground="White"
+                                BorderThickness="0"
+                                Cursor="Hand"
+                                Margin="0,0,0,15">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        CornerRadius="10"
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Center"
+                                                                    VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#4a5568"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+
+                        <!-- Exit to Menu Button -->
+                        <Button Command="{Binding BackToMenuCommand}"
+                                Content="🏠 Về Menu"
+                                FontSize="18"
+                                Padding="30,15"
+                                Background="#e94560"
+                                Foreground="White"
+                                BorderThickness="0"
+                                Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        CornerRadius="10"
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Center"
+                                                                    VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#f76f8e"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Border>
 
         <!-- End Game Screen Overlay -->
         <Border Background="#CC000000"

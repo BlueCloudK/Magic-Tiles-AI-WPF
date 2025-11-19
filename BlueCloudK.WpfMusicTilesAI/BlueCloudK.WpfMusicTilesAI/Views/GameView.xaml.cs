@@ -45,7 +45,7 @@ namespace BlueCloudK.WpfMusicTilesAI.Views
             }
         }
 
-        private void SettingsButton_Click(object sender, RoutedEventArgs e)
+        private void PauseMenuSettingsButton_Click(object sender, RoutedEventArgs e)
         {
             // Get services from app
             var app = (App)Application.Current;
