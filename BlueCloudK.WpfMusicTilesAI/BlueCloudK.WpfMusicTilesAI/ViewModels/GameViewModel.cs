@@ -44,6 +44,8 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
         [ObservableProperty]
         private double _currentTime;
 
+        private double _previousTime = 0;
+
         public event Action? OnGameEnd;
 
         public GameViewModel(IAudioService audioService)
@@ -70,6 +72,7 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
             Combo = 0;
             MaxCombo = 0;
             CurrentTime = 0;
+            _previousTime = 0;
             ActiveNotes.Clear();
 
             // Load and play audio file
@@ -95,13 +98,21 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
                 return;
 
             // Sync game time with actual audio position for perfect rhythm timing
-            CurrentTime = _audioService.CurrentPosition;
+            double newTime = _audioService.CurrentPosition;
+            double deltaTime = newTime - _previousTime;
+
+            // Clamp delta time to prevent huge jumps (e.g., after pause)
+            if (deltaTime > 0.1) deltaTime = 0.016; // Use 16ms if jump is too large
+            if (deltaTime < 0) deltaTime = 0; // Ignore negative deltas
+
+            _previousTime = newTime;
+            CurrentTime = newTime;
 
             // Spawn notes that should appear on screen
             SpawnNotes();
 
-            // Update positions of active notes
-            UpdateNotes();
+            // Update positions of active notes with actual delta time
+            UpdateNotes(deltaTime);
 
             // Check if game is finished
             if (CurrentTime >= (BeatMap.Metadata.Duration + 3))
@@ -134,20 +145,20 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
             }
         }
 
-        private void UpdateNotes()
+        private void UpdateNotes(double deltaTime)
         {
             var notesToRemove = new System.Collections.Generic.List<Note>();
 
             foreach (var note in ActiveNotes)
             {
-                // Update Y position
+                // Update Y position using actual delta time
                 var oldY = note.Y;
-                note.Y += FALL_SPEED * 0.016;
+                note.Y += FALL_SPEED * deltaTime;
 
                 // Log first few updates to verify
                 if (oldY < 0 && note.Y >= 0)
                 {
-                    System.Diagnostics.Debug.WriteLine($"  Note lane {note.Lane} entered screen at Y={note.Y:F1}");
+                    System.Diagnostics.Debug.WriteLine($"  Note lane {note.Lane} entered screen at Y={note.Y:F1} (deltaTime={deltaTime:F3}s)");
                 }
 
                 // Check if note passed hit zone (missed)
