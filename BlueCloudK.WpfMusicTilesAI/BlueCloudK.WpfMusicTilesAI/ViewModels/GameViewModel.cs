@@ -300,9 +300,12 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
             }
             else
             {
-                // Magic Tiles rule: Tapping empty lane or tile too far = GAME OVER
-                System.Diagnostics.Debug.WriteLine($"WRONG TAP! Lane {lane}, No tile in hit zone - GAME OVER!");
-                EndGame();
+                // Wrong tap: just break combo, don't end game
+                if (Combo > 0)
+                {
+                    System.Diagnostics.Debug.WriteLine($"WRONG TAP! Lane {lane}, No tile in hit zone - Combo broken!");
+                    Combo = 0;
+                }
             }
         }
 
