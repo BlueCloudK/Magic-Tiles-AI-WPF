@@ -19,6 +19,7 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
         private const double FALL_SPEED = 300; // pixels per second
         private const double HIT_ZONE_Y = 500; // Y position of hit zone
         private const double HIT_TOLERANCE = 50; // pixels tolerance for hitting notes
+        private const double SPAWN_AHEAD_TIME = 2.0; // seconds to spawn notes before hit time
 
         [ObservableProperty]
         private BeatMap? _beatMap;
@@ -114,9 +115,16 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
             double newTime = _audioService.CurrentPosition;
             double deltaTime = newTime - _previousTime;
 
-            // Clamp delta time to prevent huge jumps (e.g., after pause)
-            if (deltaTime > 0.1) deltaTime = 0.016; // Use 16ms if jump is too large
-            if (deltaTime < 0) deltaTime = 0; // Ignore negative deltas
+            // Clamp delta time to prevent huge jumps (e.g., after pause) and handle zero deltas
+            if (deltaTime > 0.05) // Max 50ms between frames
+            {
+                deltaTime = 0.016; // Use 16ms if jump is too large
+                System.Diagnostics.Debug.WriteLine($"WARNING: Large deltaTime detected, clamping to 0.016");
+            }
+            else if (deltaTime <= 0) // Audio position hasn't updated yet
+            {
+                deltaTime = 0.016; // Use expected frame time
+            }
 
             _previousTime = newTime;
             CurrentTime = newTime;
@@ -169,9 +177,14 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
                 System.Diagnostics.Debug.WriteLine($"[{CurrentTime:F2}s] Spawning {notesToSpawn.Count} notes");
                 foreach (var note in notesToSpawn)
                 {
-                    note.Y = -100; // Start above screen
+                    // Calculate initial Y based on time remaining until hit
+                    double timeUntilHit = note.Time - CurrentTime;
+                    // Note should travel at FALL_SPEED to reach HIT_ZONE_Y exactly at note.Time
+                    double distanceToTravel = timeUntilHit * FALL_SPEED;
+                    note.Y = HIT_ZONE_Y - distanceToTravel;
+
                     ActiveNotes.Add(note);
-                    System.Diagnostics.Debug.WriteLine($"  Note spawned at lane {note.Lane}, time {note.Time:F2}s, Y={note.Y}");
+                    System.Diagnostics.Debug.WriteLine($"  Note spawned at lane {note.Lane}, time {note.Time:F2}s, Y={note.Y:F1} (timeUntil={timeUntilHit:F2}s, dist={distanceToTravel:F1}px)");
                 }
             }
         }
