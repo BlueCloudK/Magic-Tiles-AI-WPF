@@ -72,12 +72,38 @@ namespace BlueCloudK.WpfMusicTilesAI.Services
 
                 System.Diagnostics.Debug.WriteLine($"Python output: {output}");
 
+                // Wait a bit for file system to flush
+                await Task.Delay(500);
+
                 // Read generated beat map
                 if (!File.Exists(tempOutputPath))
                     throw new FileNotFoundException("Beat map output file not created");
 
+                // Validate file is complete before reading
+                var fileInfo = new FileInfo(tempOutputPath);
+                System.Diagnostics.Debug.WriteLine($"Beat map file size: {fileInfo.Length} bytes");
+
+                if (fileInfo.Length == 0)
+                    throw new InvalidOperationException("Beat map file is empty");
+
                 var json = await File.ReadAllTextAsync(tempOutputPath);
-                var beatMap = JsonConvert.DeserializeObject<BeatMap>(json);
+                System.Diagnostics.Debug.WriteLine($"JSON length: {json.Length} characters");
+                System.Diagnostics.Debug.WriteLine($"JSON preview (first 200 chars): {json.Substring(0, Math.Min(200, json.Length))}");
+                System.Diagnostics.Debug.WriteLine($"JSON preview (last 200 chars): {json.Substring(Math.Max(0, json.Length - 200))}");
+
+                BeatMap? beatMap;
+                try
+                {
+                    beatMap = JsonConvert.DeserializeObject<BeatMap>(json);
+                }
+                catch (JsonException ex)
+                {
+                    // Save failed JSON to temp file for debugging
+                    var errorJsonPath = Path.Combine(Path.GetTempPath(), $"failed_beatmap_{DateTime.Now:yyyyMMdd_HHmmss}.json");
+                    await File.WriteAllTextAsync(errorJsonPath, json);
+                    System.Diagnostics.Debug.WriteLine($"Failed JSON saved to: {errorJsonPath}");
+                    throw new InvalidOperationException($"JSON deserialization failed at {ex.Path}: {ex.Message}\nJSON saved to: {errorJsonPath}", ex);
+                }
 
                 if (beatMap == null)
                     throw new InvalidOperationException("Failed to deserialize beat map");
