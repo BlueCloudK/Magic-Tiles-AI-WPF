@@ -35,11 +35,15 @@
                         <Canvas/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemContainerStyle>
+                    <Style>
+                        <Setter Property="Canvas.Left" Value="{Binding Lane, Converter={StaticResource LaneToXConverter}}"/>
+                        <Setter Property="Canvas.Top" Value="{Binding Y}"/>
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Rectangle Width="90" Height="30" Fill="#00d9ff" Stroke="#0099cc" StrokeThickness="2"
-                                   Canvas.Left="{Binding Lane, Converter={StaticResource LaneToXConverter}}"
-                                   Canvas.Top="{Binding Y}"/>
+                        <Rectangle Width="90" Height="30" Fill="#00d9ff" Stroke="#0099cc" StrokeThickness="2"/>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
