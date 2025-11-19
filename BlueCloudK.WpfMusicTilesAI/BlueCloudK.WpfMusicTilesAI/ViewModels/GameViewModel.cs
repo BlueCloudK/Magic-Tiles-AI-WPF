@@ -65,8 +65,7 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
             };
             _gameTimer.Tick += GameLoop;
 
-            // Apply initial settings
-            ApplySettings();
+            // Note: Settings will be applied in Initialize() after audio is loaded
         }
 
         public void Initialize(BeatMap beatMap, Song song)
@@ -98,6 +97,10 @@ namespace BlueCloudK.WpfMusicTilesAI.ViewModels
                 System.Diagnostics.Debug.WriteLine($"Loading audio from: {song.Url}");
                 _audioService.Load(song.Url);
                 System.Diagnostics.Debug.WriteLine($"Audio duration: {_audioService.TotalDuration:F2}s");
+
+                // Apply settings AFTER audio is loaded so Volume can be set
+                ApplySettings();
+
                 _audioService.Play();
                 System.Diagnostics.Debug.WriteLine($"Audio IsPlaying: {_audioService.IsPlaying}");
             }
