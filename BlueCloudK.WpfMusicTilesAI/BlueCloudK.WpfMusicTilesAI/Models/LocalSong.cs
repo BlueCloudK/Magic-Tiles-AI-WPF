@@ -6,23 +6,8 @@ namespace BlueCloudK.WpfMusicTilesAI.Models
     /// <summary>
     /// Represents a song imported from local file system
     /// </summary>
-    public partial class LocalSong : ObservableObject
+    public partial class LocalSong : Song
     {
-        /// <summary>
-        /// Unique identifier
-        /// </summary>
-        public string Id { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Song title
-        /// </summary>
-        public string Title { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Artist name
-        /// </summary>
-        public string Artist { get; set; } = string.Empty;
-
         /// <summary>
         /// Full path to the audio file on disk
         /// </summary>

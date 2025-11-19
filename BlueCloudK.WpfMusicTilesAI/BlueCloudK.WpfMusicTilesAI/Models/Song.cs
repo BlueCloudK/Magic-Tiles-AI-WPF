@@ -1,9 +1,11 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+
 namespace BlueCloudK.WpfMusicTilesAI.Models
 {
     /// <summary>
     /// Represents a song that can be played
     /// </summary>
-    public class Song
+    public partial class Song : ObservableObject
     {
         /// <summary>
         /// Unique identifier
